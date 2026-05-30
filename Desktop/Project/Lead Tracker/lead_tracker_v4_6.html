@@ -3373,6 +3373,13 @@ var Vr={},Br={};var Fr=function(){function t(t,e,n){var i=this;this._sleepAfterS
         let isSyncing = false;
         let lastLinkedFileName = localStorage.getItem('lastLinkedFileName') || 'project_tracker_data.json';
         
+        function safeArr(val) {
+            if (!val) return [];
+            if (Array.isArray(val)) return val;
+            if (typeof val === 'string') return val.trim() ? [val.trim()] : [];
+            return [];
+        }
+
         // ===== OFFLINE SYNC QUEUE =====
         const SYNC_QUEUE_KEY = 'projectLeadTracker_syncQueue';
         const SYNC_QUEUE_VERSION_KEY = 'projectLeadTracker_syncQueueVersion';
@@ -4677,7 +4684,7 @@ function toggleArchetypeFilter() {
 function renderArchetypeFilterOptions() {
     const allArchetypes = new Set();
     projects.forEach(project => {
-        (project.projectArchetype || []).forEach(arch => allArchetypes.add(arch));
+        safeArr(project.projectArchetype).forEach(arch => allArchetypes.add(arch));
     });
     const archetypesArray = Array.from(allArchetypes).sort();
     const dropdown = document.getElementById('archetypeFilterDropdown');
@@ -6898,16 +6905,16 @@ updateStats();
             });
             _renderDashDropdownOptions('year', Array.from(years).sort((a,b)=>b-a).map(String), dashSelectedYears);
             _updateDashBtn('year');
-            const industries = new Set(); projects.forEach(p => (p.industryGroup||[]).forEach(i => industries.add(i)));
+            const industries = new Set(); projects.forEach(p => safeArr(p.industryGroup).forEach(i => industries.add(i)));
             _renderDashDropdownOptions('industry', Array.from(industries).sort(), dashSelectedIndustries);
             _updateDashBtn('industry');
-            const locations = new Set(); projects.forEach(p => (p.companyLocation||[]).forEach(l => locations.add(l)));
+            const locations = new Set(); projects.forEach(p => safeArr(p.companyLocation).forEach(l => locations.add(l)));
             _renderDashDropdownOptions('location', Array.from(locations).sort(), dashSelectedLocations);
             _updateDashBtn('location');
-            const archetypes = new Set(); projects.forEach(p => (p.projectArchetype||[]).forEach(a => archetypes.add(a)));
+            const archetypes = new Set(); projects.forEach(p => safeArr(p.projectArchetype).forEach(a => archetypes.add(a)));
             _renderDashDropdownOptions('archetype', Array.from(archetypes).sort(), dashSelectedArchetypes);
             _updateDashBtn('archetype');
-            const tags = new Set(); projects.forEach(p => (p.projectTags||[]).forEach(t => tags.add(t)));
+            const tags = new Set(); projects.forEach(p => safeArr(p.projectTags).forEach(t => tags.add(t)));
             _renderDashDropdownOptions('tag', Array.from(tags).sort(), dashSelectedTags);
             _updateDashBtn('tag');
         }
@@ -6958,13 +6965,13 @@ updateStats();
             drop.appendChild(nb);
         }
         function updateHeatmapFilterOptions() {
-            const industries = new Set(); projects.forEach(p => (p.industryGroup||[]).forEach(i => industries.add(i)));
+            const industries = new Set(); projects.forEach(p => safeArr(p.industryGroup).forEach(i => industries.add(i)));
             _renderHmDropdownOptions('industry', Array.from(industries).sort(), hmSelectedIndustries);
             _updateHmBtn('industry');
-            const archetypes = new Set(); projects.forEach(p => (p.projectArchetype||[]).forEach(a => archetypes.add(a)));
+            const archetypes = new Set(); projects.forEach(p => safeArr(p.projectArchetype).forEach(a => archetypes.add(a)));
             _renderHmDropdownOptions('archetype', Array.from(archetypes).sort(), hmSelectedArchetypes);
             _updateHmBtn('archetype');
-            const tags = new Set(); projects.forEach(p => (p.projectTags||[]).forEach(t => tags.add(t)));
+            const tags = new Set(); projects.forEach(p => safeArr(p.projectTags).forEach(t => tags.add(t)));
             _renderHmDropdownOptions('tag', Array.from(tags).sort(), hmSelectedTags);
             _updateHmBtn('tag');
         }
@@ -7390,16 +7397,16 @@ updateStats();
                 if (tableSelectedYears.size > 0 && ![...tableSelectedYears].some(y => _projectMatchesYear(project, y, tableYearScope))) return false;
 
                 // Industry filter — multi-select (Set)
-                if (tableSelectedIndustries.size > 0 && !(project.industryGroup || []).some(ig => tableSelectedIndustries.has(ig))) return false;
+                if (tableSelectedIndustries.size > 0 && !safeArr(project.industryGroup).some(ig => tableSelectedIndustries.has(ig))) return false;
 
                 // Location filter — multi-select (Set)
-                if (tableSelectedLocations.size > 0 && !(project.companyLocation || []).some(loc => tableSelectedLocations.has(loc))) return false;
+                if (tableSelectedLocations.size > 0 && !safeArr(project.companyLocation).some(loc => tableSelectedLocations.has(loc))) return false;
 
                 // Archetype filter — multi-select (Set)
-                if (tableSelectedArchetypes.size > 0 && !(project.projectArchetype || []).some(arch => tableSelectedArchetypes.has(arch))) return false;
+                if (tableSelectedArchetypes.size > 0 && !safeArr(project.projectArchetype).some(arch => tableSelectedArchetypes.has(arch))) return false;
 
                 // Tag filter — multi-select (Set)
-                if (tableSelectedTags.size > 0 && !(project.projectTags || []).some(tag => tableSelectedTags.has(tag))) return false;
+                if (tableSelectedTags.size > 0 && !safeArr(project.projectTags).some(tag => tableSelectedTags.has(tag))) return false;
                 
                 return true;
             });
@@ -7576,25 +7583,25 @@ updateStats();
 
             // Update industry filter
             const industries = new Set();
-            projects.forEach(p => (p.industryGroup || []).forEach(ig => industries.add(ig)));
+            projects.forEach(p => safeArr(p.industryGroup).forEach(ig => industries.add(ig)));
             _renderTblDropdownOptions('industry', Array.from(industries).sort(), tableSelectedIndustries);
             _updateTblBtn('industry');
 
             // Update location filter
             const locations = new Set();
-            projects.forEach(p => (p.companyLocation || []).forEach(loc => locations.add(loc)));
+            projects.forEach(p => safeArr(p.companyLocation).forEach(loc => locations.add(loc)));
             _renderTblDropdownOptions('location', Array.from(locations).sort(), tableSelectedLocations);
             _updateTblBtn('location');
 
             // Update archetype filter
             const archetypes = new Set();
-            projects.forEach(p => (p.projectArchetype || []).forEach(arch => archetypes.add(arch)));
+            projects.forEach(p => safeArr(p.projectArchetype).forEach(arch => archetypes.add(arch)));
             _renderTblDropdownOptions('archetype', Array.from(archetypes).sort(), tableSelectedArchetypes);
             _updateTblBtn('archetype');
 
             // Update tag filter
             const tags = new Set();
-            projects.forEach(p => (p.projectTags || []).forEach(tag => tags.add(tag)));
+            projects.forEach(p => safeArr(p.projectTags).forEach(tag => tags.add(tag)));
             _renderTblDropdownOptions('tag', Array.from(tags).sort(), tableSelectedTags);
             _updateTblBtn('tag');
         }
@@ -7797,7 +7804,7 @@ updateStats();
             const counts = {};
             let totalTags = 0;
             filtered.forEach(p => {
-                (p.industryGroup || []).forEach(ig => {
+                safeArr(p.industryGroup).forEach(ig => {
                     counts[ig] = (counts[ig] || 0) + 1;
                     totalTags++;
                 });
@@ -7853,15 +7860,15 @@ updateStats();
                 // Status multi-select
                 if (dashSelectedStatuses.size > 0 && !dashSelectedStatuses.has(p.status)) return false;
                 // Industry multi-select
-                if (dashSelectedIndustries.size > 0 && !(p.industryGroup || []).some(ig => dashSelectedIndustries.has(ig))) return false;
+                if (dashSelectedIndustries.size > 0 && !safeArr(p.industryGroup).some(ig => dashSelectedIndustries.has(ig))) return false;
                 // Location multi-select
-                if (dashSelectedLocations.size > 0 && !(p.companyLocation || []).some(loc => dashSelectedLocations.has(loc))) return false;
+                if (dashSelectedLocations.size > 0 && !safeArr(p.companyLocation).some(loc => dashSelectedLocations.has(loc))) return false;
                 // Archetype multi-select
-                if (dashSelectedArchetypes.size > 0 && !(p.projectArchetype || []).some(arch => dashSelectedArchetypes.has(arch))) return false;
+                if (dashSelectedArchetypes.size > 0 && !safeArr(p.projectArchetype).some(arch => dashSelectedArchetypes.has(arch))) return false;
                 // Tag multi-select
-                if (dashSelectedTags.size > 0 && !(p.projectTags || []).some(tag => dashSelectedTags.has(tag))) return false;
+                if (dashSelectedTags.size > 0 && !safeArr(p.projectTags).some(tag => dashSelectedTags.has(tag))) return false;
                 // Has-updates filter
-                const hasUpdates = (p.updates || []).length > 0;
+                const hasUpdates = safeArr(p.updates).length > 0;
                 if (dashHasUpdatesOnly && !dashNoUpdatesOnly && !hasUpdates) return false;
                 if (dashNoUpdatesOnly && !dashHasUpdatesOnly && hasUpdates) return false;
                 return true;
@@ -7993,7 +8000,7 @@ updateStats();
             const parent = canvas.parentElement;
             const placeholder = parent.querySelector('.chart-empty-state');
             if (placeholder) placeholder.style.display = 'none';
-            canvas.style.opacity = '';
+            canvas.style.opacity = '1';
         }
 
         function renderIndustryGroupChart() {
@@ -8012,7 +8019,7 @@ updateStats();
             // Count industry groups
             const industryCount = {};
             getDashboardFilteredProjects().forEach(project => {
-                (project.industryGroup || []).forEach(ig => {
+                safeArr(project.industryGroup).forEach(ig => {
                     industryCount[ig] = (industryCount[ig] || 0) + 1;
                 });
             });
@@ -8066,7 +8073,7 @@ updateStats();
             // Count locations
             const locationCount = {};
             getDashboardFilteredProjects().forEach(project => {
-                (project.companyLocation || []).forEach(loc => {
+                safeArr(project.companyLocation).forEach(loc => {
                     locationCount[loc] = (locationCount[loc] || 0) + 1;
                 });
             });
@@ -8308,7 +8315,7 @@ updateStats();
 
             const tagCount = {};
             getDashboardFilteredProjects().forEach(p => {
-                (p.projectTags || []).forEach(t => { tagCount[t] = (tagCount[t] || 0) + 1; });
+                safeArr(p.projectTags).forEach(t => { tagCount[t] = (tagCount[t] || 0) + 1; });
             });
 
             if (Object.keys(tagCount).length === 0) {
@@ -8414,7 +8421,7 @@ updateStats();
 
             const counts = {};
             getDashboardFilteredProjects().forEach(p => {
-                (p.projectArchetype || []).forEach(a => { counts[a] = (counts[a] || 0) + 1; });
+                safeArr(p.projectArchetype).forEach(a => { counts[a] = (counts[a] || 0) + 1; });
             });
 
             if (Object.keys(counts).length === 0) {
@@ -8460,7 +8467,7 @@ updateStats();
 
             const buckets = { '0 updates': 0, '1–2': 0, '3–5': 0, '6–10': 0, '10+': 0 };
             getDashboardFilteredProjects().forEach(p => {
-                const n = (p.updates || []).length;
+                const n = safeArr(p.updates).length;
                 if (n === 0) buckets['0 updates']++;
                 else if (n <= 2) buckets['1–2']++;
                 else if (n <= 5) buckets['3–5']++;
@@ -8515,7 +8522,7 @@ updateStats();
             const industryStats = {}; // { industry: { won, total } }
             getDashboardFilteredProjects().forEach(p => {
                 if (!['Won', 'Lost'].includes(p.status)) return; // only closed
-                (p.industryGroup || ['Unknown']).forEach(ig => {
+                safeArr(p.industryGroup).forEach(ig => {
                     if (!industryStats[ig]) industryStats[ig] = { won: 0, total: 0 };
                     industryStats[ig].total++;
                     if (p.status === 'Won') industryStats[ig].won++;
@@ -8584,11 +8591,11 @@ updateStats();
                 // Status multi-select
                 if (hmSelectedStatuses.size > 0 && !hmSelectedStatuses.has(project.status)) return;
                 // Industry multi-select
-                if (hmSelectedIndustries.size > 0 && !(project.industryGroup || []).some(ig => hmSelectedIndustries.has(ig))) return;
+                if (hmSelectedIndustries.size > 0 && !safeArr(project.industryGroup).some(ig => hmSelectedIndustries.has(ig))) return;
                 // Archetype multi-select
-                if (hmSelectedArchetypes.size > 0 && !(project.projectArchetype || []).some(arch => hmSelectedArchetypes.has(arch))) return;
+                if (hmSelectedArchetypes.size > 0 && !safeArr(project.projectArchetype).some(arch => hmSelectedArchetypes.has(arch))) return;
                 // Tag multi-select
-                if (hmSelectedTags.size > 0 && !(project.projectTags || []).some(tag => hmSelectedTags.has(tag))) return;
+                if (hmSelectedTags.size > 0 && !safeArr(project.projectTags).some(tag => hmSelectedTags.has(tag))) return;
                 
                 // Ensure companyLocation is an array
                 let locations = project.companyLocation;
@@ -9256,16 +9263,16 @@ updateStats();
             });
             _renderKbDropdownOptions('year', Array.from(years).sort((a,b)=>b-a).map(String), kbSelectedYears);
             _updateKbBtn('year');
-            const industries = new Set(); projects.forEach(p => (p.industryGroup||[]).forEach(i => industries.add(i)));
+            const industries = new Set(); projects.forEach(p => safeArr(p.industryGroup).forEach(i => industries.add(i)));
             _renderKbDropdownOptions('industry', Array.from(industries).sort(), kbSelectedIndustries);
             _updateKbBtn('industry');
-            const locations = new Set(); projects.forEach(p => (p.companyLocation||[]).forEach(l => locations.add(l)));
+            const locations = new Set(); projects.forEach(p => safeArr(p.companyLocation).forEach(l => locations.add(l)));
             _renderKbDropdownOptions('location', Array.from(locations).sort(), kbSelectedLocations);
             _updateKbBtn('location');
-            const archetypes = new Set(); projects.forEach(p => (p.projectArchetype||[]).forEach(a => archetypes.add(a)));
+            const archetypes = new Set(); projects.forEach(p => safeArr(p.projectArchetype).forEach(a => archetypes.add(a)));
             _renderKbDropdownOptions('archetype', Array.from(archetypes).sort(), kbSelectedArchetypes);
             _updateKbBtn('archetype');
-            const tags = new Set(); projects.forEach(p => (p.projectTags||[]).forEach(t => tags.add(t)));
+            const tags = new Set(); projects.forEach(p => safeArr(p.projectTags).forEach(t => tags.add(t)));
             _renderKbDropdownOptions('tag', Array.from(tags).sort(), kbSelectedTags);
             _updateKbBtn('tag');
         }
@@ -9280,11 +9287,11 @@ updateStats();
                 }
                 if (kbSelectedStatuses.size > 0 && !kbSelectedStatuses.has(p.status)) return false;
                 if (kbSelectedYears.size > 0 && ![...kbSelectedYears].some(y => _projectMatchesYear(p, y, kanbanYearScope))) return false;
-                if (kbSelectedIndustries.size > 0 && !(p.industryGroup||[]).some(ig => kbSelectedIndustries.has(ig))) return false;
-                if (kbSelectedLocations.size > 0  && !(p.companyLocation||[]).some(loc => kbSelectedLocations.has(loc))) return false;
-                if (kbSelectedArchetypes.size > 0 && !(p.projectArchetype||[]).some(arch => kbSelectedArchetypes.has(arch))) return false;
-                if (kbSelectedTags.size > 0 && !(p.projectTags||[]).some(tag => kbSelectedTags.has(tag))) return false;
-                const hasUpdates = (p.updates||[]).length > 0;
+                if (kbSelectedIndustries.size > 0 && !safeArr(p.industryGroup).some(ig => kbSelectedIndustries.has(ig))) return false;
+                if (kbSelectedLocations.size > 0  && !safeArr(p.companyLocation).some(loc => kbSelectedLocations.has(loc))) return false;
+                if (kbSelectedArchetypes.size > 0 && !safeArr(p.projectArchetype).some(arch => kbSelectedArchetypes.has(arch))) return false;
+                if (kbSelectedTags.size > 0 && !safeArr(p.projectTags).some(tag => kbSelectedTags.has(tag))) return false;
+                const hasUpdates = safeArr(p.updates).length > 0;
                 if (hasUpdatesOnly && !noUpdatesOnly && !hasUpdates) return false;
                 if (noUpdatesOnly  && !hasUpdatesOnly && hasUpdates) return false;
                 if (q) {
