@@ -7926,8 +7926,10 @@ updateStats();
             dashFilterEnd   = document.getElementById('dashEndDate').value   || null;
             const filtered  = getDashboardFilteredProjects();
             const label     = document.getElementById('dashFilterLabel');
-            const dashHasUpdatesOnly = document.getElementById('dashHasUpdatesOnly') && document.getElementById('dashHasUpdatesOnly').checked;
-            const dashNoUpdatesOnly  = document.getElementById('dashNoUpdatesOnly')  && document.getElementById('dashNoUpdatesOnly').checked;
+            const _duEl = document.getElementById('dashHasUpdatesOnly');
+            const dashHasUpdatesOnly = _duEl ? _duEl.checked : false;
+            const _dnEl = document.getElementById('dashNoUpdatesOnly');
+            const dashNoUpdatesOnly = _dnEl ? _dnEl.checked : false;
             const isFiltered = dashFilterStart || dashFilterEnd || dashHasUpdatesOnly || dashNoUpdatesOnly;
             if (isFiltered) {
                 const from = dashFilterStart || 'beginning';
