@@ -3776,6 +3776,13 @@ var Vr={},Br={};var Fr=function(){function t(t,e,n){var i=this;this._sleepAfterS
             // Initialize Dark Mode and Dashboard Widgets
             initDarkMode();
             initDashboardWidgets();
+
+            // Kanban search — immediateSearch avoids the 200ms delay on first keystroke
+            window.doKanbanSearch = immediateSearch(function() {
+                var inp = document.getElementById('kanbanSearchInput');
+                if (inp) document.getElementById('kanbanClearSearch').style.display = inp.value ? 'block' : 'none';
+                renderKanban();
+            }, 200);
             
             // Initialize offline sync queue
             loadSyncQueue();
@@ -5889,6 +5896,24 @@ updateStats();
             return function(...args) {
                 clearTimeout(timeout);
                 timeout = setTimeout(() => func.apply(this, args), wait);
+            };
+        }
+        // Immediately-invoked search — renders on first keystroke instantly,
+        // then debounces subsequent rapid keys. Keeps kanban responsive.
+        function immediateSearch(func, wait) {
+            let timeout, lastRan = 0;
+            return function(...args) {
+                var now = Date.now();
+                clearTimeout(timeout);
+                if (now - lastRan >= wait) {
+                    lastRan = now;
+                    func.apply(this, args);
+                } else {
+                    timeout = setTimeout(() => {
+                        lastRan = Date.now();
+                        func.apply(this, args);
+                    }, wait);
+                }
             };
         }
 
