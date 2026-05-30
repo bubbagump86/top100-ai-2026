@@ -2665,7 +2665,7 @@
                 <span id="kanbanSortLabel" style="font-size: 11px; color: #aaa;"></span>
                 <div style="flex: 1; min-width: 160px; position: relative;">
                   <input type="text" id="kanbanSearchInput" placeholder="Search leads…" style="width: 100%; padding: 7px 30px 7px 10px; border: 1px solid #ddd; border-radius: 4px; font-size: 13px; box-sizing: border-box;"
-                    oninput="doKanbanSearch()">
+                    oninput="window.doKanbanSearch()">
                   <button id="kanbanClearSearch" onclick="document.getElementById('kanbanSearchInput').value=''; this.style.display='none'; renderKanban();" style="display:none; position:absolute; right:6px; top:50%; transform:translateY(-50%); background:none; border:none; cursor:pointer; color:#999; font-size:16px;">✕</button>
                 </div>
               </div>
@@ -3801,8 +3801,8 @@ var Vr={},Br={};var Fr=function(){function t(t,e,n){var i=this;this._sleepAfterS
             document.getElementById('projectForm').addEventListener('submit', handleAddProject);
             document.getElementById('editForm').addEventListener('submit', handleEditProject);
             document.getElementById('bulkEditForm').addEventListener('submit', handleBulkEdit);
-            var doProjectsSearch = debounce(function() { projectsCurrentPage = 1; renderProjects(); }, 200);
-            document.getElementById('searchInput').addEventListener('input', function() { doProjectsSearch(); });
+            window.doProjectsSearch = debounce(function() { projectsCurrentPage = 1; renderProjects(); }, 200);
+            document.getElementById('searchInput').addEventListener('input', function() { window.doProjectsSearch(); });
             document.getElementById('statusFilter').addEventListener('change', function() { projectsCurrentPage = 1; renderProjects(); });
             document.getElementById('yearFilter').addEventListener('change', function() {
                 projectsCurrentPage = 1;
@@ -3874,15 +3874,13 @@ var Vr={},Br={};var Fr=function(){function t(t,e,n){var i=this;this._sleepAfterS
             updateSyncStatus();
 
             // Table view filter event listeners
+            window.doTableSearch = debounce(function() {
+                var clearBtn = document.getElementById('tableClearSearch');
+                clearBtn.style.display = document.getElementById('tableSearchInput').value ? 'block' : 'none';
+                renderTable(); setupTableEventDelegation();
+            }, 200);
             document.getElementById('tableSearchInput').addEventListener('input', function() {
-                var doTableSearch = debounce(function() {
-                    var clearBtn = document.getElementById('tableClearSearch');
-                    clearBtn.style.display = this.value ? 'block' : 'none';
-                    renderTable(); setupTableEventDelegation();
-                }, 200);
-                document.getElementById('tableSearchInput').addEventListener('input', function() {
-                    doTableSearch();
-                });
+                window.doTableSearch();
             });
 
             // CRITICAL: Initialize sync monitoring AFTER all other setup is complete
