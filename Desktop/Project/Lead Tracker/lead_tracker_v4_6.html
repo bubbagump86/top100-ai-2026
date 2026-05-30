@@ -2865,6 +2865,7 @@
                     <label for="editStatus">Status *</label>
                     <select id="editStatus" required>
                         <option value="New Lead">New Lead</option>
+                        <option value="Cultivating">Cultivating</option>
                         <option value="In Discussion">In Discussion</option>
                         <option value="Negotiation">Negotiation</option>
                         <option value="Won">Won</option>
@@ -5889,7 +5890,7 @@ updateStats();
             let timeout;
             return function(...args) {
                 clearTimeout(timeout);
-                timeout = safeSetTimeout(() => func.apply(this, args), wait);
+                timeout = setTimeout(() => func.apply(this, args), wait);
             };
         }
 
@@ -5899,7 +5900,7 @@ updateStats();
                 if (!inThrottle) {
                     func.apply(this, args);
                     inThrottle = true;
-                    safeSetTimeout(() => inThrottle = false, limit);
+                    setTimeout(() => inThrottle = false, limit);
                 }
             };
         }
