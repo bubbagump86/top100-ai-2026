@@ -7919,10 +7919,10 @@ updateStats();
                 return p.projectDate || '';
             };
 
-            board.innerHTML = statuses.map(status => {
-                let cards = filtered.filter(p => p.status === status);
+            board.innerHTML = statuses.map(function(status) {
+                var cards = filtered.filter(function(p) { return p.status === status; });
                 // Sort cards within each column by scope date
-                cards = cards.slice().sort((a, b) => {
+                cards = cards.slice().sort(function(a, b) {
                     const da = getSortDate(a), db = getSortDate(b);
                     const cmp = da < db ? -1 : da > db ? 1 : 0;
                     return kanbanSortDir === 'asc' ? cmp : -cmp;
