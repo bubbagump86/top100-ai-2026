@@ -7997,10 +7997,11 @@ updateStats();
             canvas.style.opacity = '0';
         }
         function hideChartEmptyState(canvas) {
-            const parent = canvas.parentElement;
-            const placeholder = parent.querySelector('.chart-empty-state');
-            if (placeholder) placeholder.style.display = 'none';
             canvas.style.opacity = '1';
+            const parent = canvas.parentElement;
+            if (parent) {
+                parent.querySelectorAll('.chart-empty-state').forEach(el => el.remove());
+            }
         }
 
         function renderIndustryGroupChart() {
@@ -8261,6 +8262,7 @@ updateStats();
             };
             
             if (yearChart) yearChart.destroy();
+            hideChartEmptyState(canvas);
             yearChart = new Chart(ctx, {
                 type: 'bar',
                 data: data,
