@@ -3990,18 +3990,16 @@ var Vr={},Br={};var Fr=function(){function t(t,e,n){var i=this;this._sleepAfterS
                         tabId: 'dashboardTab',
                         navIndex: 2,
                         render: () => {
-                            try {
-                                if (typeof updateDashFilterOptions === 'function') updateDashFilterOptions();
-                                if (typeof renderDashboard === 'function') renderDashboard();
-                                // Force Chart.js to recalculate canvas sizes after layout settles
-                                setTimeout(() => {
-                                    [industryChart, locationChart, trendsChart, statusChart, yearChart,
-                                     tagChart, priorityChart, archetypeChart, updateFreqChart, winRateByIndustryChart
-                                    ].forEach(c => { try { if (c) c.resize(); } catch(e) {} });
-                                }, 80);
-                            } catch (error) {
-                                console.error('❌ Dashboard tab render error:', error);
-                            }
+                            try { if (typeof updateDashFilterOptions === 'function') updateDashFilterOptions(); }
+                            catch(e) { console.error('❌ updateDashFilterOptions error:', e); }
+                            try { if (typeof renderDashboard === 'function') renderDashboard(); }
+                            catch(e) { console.error('❌ renderDashboard error:', e); }
+                            // Force Chart.js to recalculate canvas sizes after layout settles
+                            setTimeout(() => {
+                                [industryChart, locationChart, trendsChart, statusChart, yearChart,
+                                 tagChart, priorityChart, archetypeChart, updateFreqChart, winRateByIndustryChart
+                                ].forEach(c => { try { if (c) c.resize(); } catch(e) {} });
+                            }, 80);
                         }
                     },
                     'heatmap': {
@@ -4064,7 +4062,7 @@ var Vr={},Br={};var Fr=function(){function t(t,e,n){var i=this;this._sleepAfterS
                         } catch (error) {
                             console.error('❌ Deferred render error for tab', tabName, ':', error);
                         }
-                    }, 10);
+                    }, 150); // increased delay to ensure layout is settled before chart rendering
                 }
 
                 console.log('✅ Successfully switched to:', tabName);
