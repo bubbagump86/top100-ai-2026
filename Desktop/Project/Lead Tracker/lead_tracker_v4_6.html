@@ -2331,6 +2331,14 @@ var Vr={},Br={};var Fr=function(){function t(t,e,n){var i=this;this._sleepAfterS
                 return;
             }
 
+            // Table and Kanban tabs also work without special libraries
+            if (tabName === 'table' || tabName === 'kanban') {
+                if (typeof switchTab === 'function') {
+                    switchTab(tabName);
+                }
+                return;
+            }
+
             // Check if application is ready for other tabs
             if (!window.appInitialized) {
                 console.warn('⏳ Application not fully initialized yet');
@@ -2412,14 +2420,15 @@ var Vr={},Br={};var Fr=function(){function t(t,e,n){var i=this;this._sleepAfterS
                         tabId: 'tableTab',
                         navIndex: 1,
                         render: () => {
-                            try {
-                                if (typeof renderTable === 'function') renderTable();
-                                if (typeof setupTableEventDelegation === 'function') setupTableEventDelegation();
-                                if (typeof updateTableFilterOptions === 'function') updateTableFilterOptions();
-                                if (typeof updateKanbanFilterOptions === 'function') updateKanbanFilterOptions();
-                            } catch (error) {
-                                console.error('❌ Table tab render error:', error);
-                            }
+                            setTimeout(() => {
+                                try {
+                                    if (typeof renderTable === 'function') renderTable();
+                                    if (typeof setupTableEventDelegation === 'function') setupTableEventDelegation();
+                                    if (typeof updateTableFilterOptions === 'function') updateTableFilterOptions();
+                                } catch (error) {
+                                    console.error('❌ Table tab render error:', error);
+                                }
+                            }, 150);
                         }
                     },
                     'dashboard': {
@@ -5949,8 +5958,8 @@ updateStats();
                             bVal = (b.projectTags || []).join(',').toLowerCase();
                             break;
                         case 'updates':
-                            aVal = (a.updates || []).length;
-                            bVal = (b.updates || []).length;
+                            aVal = safeArr(a.updates).length;
+                            bVal = safeArr(b.updates).length;
                             break;
                         default:
                             return 0;
@@ -5965,6 +5974,7 @@ updateStats();
             }
             
             const tbody = document.getElementById('tableBody');
+            if (!tbody) { console.error('tableBody element not found'); return; }
             const emptyState = document.getElementById('tableEmptyState');
             
             // Update results count
@@ -7888,7 +7898,7 @@ updateStats();
         function renderKanban() {
             const statuses = ['New Lead','Cultivating','In Discussion','Negotiation','Won','Lost','On Hold'];
             const board = document.getElementById('kanbanBoard');
-            if (!board) return;
+            if (!board) { console.error('kanbanBoard element not found'); return; }
             const statusColors = {
                 'New Lead':'#2196F3','Cultivating':'#607D8B','In Discussion':'#ff9800','Negotiation':'#9c27b0',
                 'Won':'#4caf50','Lost':'#f44336','On Hold':'#607d8b'
