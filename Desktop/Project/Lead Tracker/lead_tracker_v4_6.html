@@ -2665,7 +2665,7 @@
                 <span id="kanbanSortLabel" style="font-size: 11px; color: #aaa;"></span>
                 <div style="flex: 1; min-width: 160px; position: relative;">
                   <input type="text" id="kanbanSearchInput" placeholder="Search leads…" style="width: 100%; padding: 7px 30px 7px 10px; border: 1px solid #ddd; border-radius: 4px; font-size: 13px; box-sizing: border-box;"
-                    oninput="renderKanban(); document.getElementById('kanbanClearSearch').style.display = this.value ? 'block' : 'none';">
+                    oninput="doKanbanSearch()">
                   <button id="kanbanClearSearch" onclick="document.getElementById('kanbanSearchInput').value=''; this.style.display='none'; renderKanban();" style="display:none; position:absolute; right:6px; top:50%; transform:translateY(-50%); background:none; border:none; cursor:pointer; color:#999; font-size:16px;">✕</button>
                 </div>
               </div>
@@ -3800,7 +3800,8 @@ var Vr={},Br={};var Fr=function(){function t(t,e,n){var i=this;this._sleepAfterS
             document.getElementById('projectForm').addEventListener('submit', handleAddProject);
             document.getElementById('editForm').addEventListener('submit', handleEditProject);
             document.getElementById('bulkEditForm').addEventListener('submit', handleBulkEdit);
-            document.getElementById('searchInput').addEventListener('input', function() { projectsCurrentPage = 1; renderProjects(); });
+            var doProjectsSearch = debounce(function() { projectsCurrentPage = 1; renderProjects(); }, 200);
+            document.getElementById('searchInput').addEventListener('input', function() { doProjectsSearch(); });
             document.getElementById('statusFilter').addEventListener('change', function() { projectsCurrentPage = 1; renderProjects(); });
             document.getElementById('yearFilter').addEventListener('change', function() {
                 projectsCurrentPage = 1;
@@ -3873,9 +3874,14 @@ var Vr={},Br={};var Fr=function(){function t(t,e,n){var i=this;this._sleepAfterS
 
             // Table view filter event listeners
             document.getElementById('tableSearchInput').addEventListener('input', function() {
-                const clearBtn = document.getElementById('tableClearSearch');
-                clearBtn.style.display = this.value ? 'block' : 'none';
-                renderTable(); setupTableEventDelegation();
+                var doTableSearch = debounce(function() {
+                    var clearBtn = document.getElementById('tableClearSearch');
+                    clearBtn.style.display = this.value ? 'block' : 'none';
+                    renderTable(); setupTableEventDelegation();
+                }, 200);
+                document.getElementById('tableSearchInput').addEventListener('input', function() {
+                    doTableSearch();
+                });
             });
 
             // CRITICAL: Initialize sync monitoring AFTER all other setup is complete
@@ -6234,8 +6240,30 @@ updateStats();
         // Undo buffer for single-project deletes
         let _deletedProjectUndo = null;
 
+        // Confirm Action Modal — reusable promise-based confirmation
+        function confirmModal(message) {
+            return new Promise(function(resolve) {
+                var el = document.getElementById('confirmModal');
+                var msgEl = document.getElementById('confirmModalMessage');
+                var okBtn = document.getElementById('confirmModalOk');
+                var cancelBtn = document.getElementById('confirmModalCancel');
+                if (!el) { resolve(true); return; }
+                msgEl.textContent = message;
+                el.classList.add('active');
+                function cleanup() {
+                    el.classList.remove('active');
+                    okBtn.removeEventListener('click', onOk);
+                    cancelBtn.removeEventListener('click', onCancel);
+                }
+                function onOk() { cleanup(); resolve(true); }
+                function onCancel() { cleanup(); resolve(false); }
+                okBtn.addEventListener('click', onOk);
+                cancelBtn.addEventListener('click', onCancel);
+            });
+        }
+
         async function deleteProject(projectId) {
-            if (confirm('Are you sure you want to delete this project?')) {
+            if (await confirmModal('Are you sure you want to delete this project?')) {
                 const deletedProject = projects.find(p => p.id === projectId);
                 const deletedIndex = projects.findIndex(p => p.id === projectId);
                 projects = projects.filter(p => p.id !== projectId);
@@ -6254,7 +6282,7 @@ updateStats();
 
                 // Store undo state and show undo toast
                 _deletedProjectUndo = { project: deletedProject, index: deletedIndex };
-                showUndoToast(`"${deletedProject.projectName}" deleted.`, async () => {
+                showUndoToast('"' + deletedProject.projectName + '" deleted.', async function() {
                     if (_deletedProjectUndo) {
                         projects.splice(_deletedProjectUndo.index, 0, _deletedProjectUndo.project);
                         _deletedProjectUndo = null;
@@ -6276,19 +6304,10 @@ updateStats();
 
             const toast = document.createElement('div');
             toast.id = 'undoToast';
-            toast.innerHTML = `
-                <span>${message}</span>
-                <button onclick="(${undoCallback.toString()})(); document.getElementById('undoToast').remove();" 
-                        style="margin-left:12px;background:white;color:#333;border:none;border-radius:4px;padding:4px 10px;font-weight:600;cursor:pointer;">
-                    Undo
-                </button>`;
-            toast.style.cssText = `
-                position:fixed;bottom:80px;left:50%;transform:translateX(-50%);
-                background:#323232;color:white;padding:12px 20px;border-radius:8px;
-                display:flex;align-items:center;z-index:9999;box-shadow:0 4px 16px rgba(0,0,0,0.3);
-                font-size:14px;animation:slideUp 0.3s ease;`;
+            toast.innerHTML = '<span>' + message + '</span><button onclick="(' + undoCallback.toString() + ')(); document.getElementById(\'undoToast\').remove();" style="margin-left:12px;background:white;color:#333;border:none;border-radius:4px;padding:4px 10px;font-weight:600;cursor:pointer;">Undo</button>';
+            toast.style.cssText = 'position:fixed;bottom:80px;left:50%;transform:translateX(-50%);background:#323232;color:white;padding:12px 20px;border-radius:8px;display:flex;align-items:center;z-index:9999;box-shadow:0 4px 16px rgba(0,0,0,0.3);font-size:14px;animation:slideUp 0.3s ease;';
             document.body.appendChild(toast);
-            setTimeout(() => { if (toast.parentNode) toast.remove(); _deletedProjectUndo = null; }, 7000);
+            setTimeout(function() { if (toast.parentNode) toast.remove(); _deletedProjectUndo = null; _deletedUpdateUndo = null; }, 7000);
         }
 
         function toggleUpdateForm(projectId) {
@@ -6332,16 +6351,36 @@ updateStats();
         }
 
         async function deleteUpdate(projectId, updateId) {
-            if (confirm('Are you sure you want to delete this update?')) {
+            if (await confirmModal('Are you sure you want to delete this update?')) {
                 const projectIndex = projects.findIndex(p => p.id === projectId);
                 if (projectIndex === -1) return;
 
-                projects[projectIndex].updates = projects[projectIndex].updates.filter(u => u.id !== updateId);
+                var deletedUpdate = null;
+                var deletedIndex = -1;
+                var project = projects[projectIndex];
+                (project.updates || []).forEach(function(u, i) {
+                    if (u.id === updateId) { deletedUpdate = u; deletedIndex = i; }
+                });
+                projects[projectIndex].updates = (project.updates || []).filter(u => u.id !== updateId);
                 saveData();
-            if (syncMode === 'onedrive') await syncToOneDrive();
+                if (syncMode === 'onedrive') await syncToOneDrive();
                 renderProjects();
                 updateStats();
-                showAlert('Update deleted successfully!');
+
+                _deletedUpdateUndo = { projectId: projectId, update: deletedUpdate, index: deletedIndex };
+                showUndoToast('Update deleted.', async function() {
+                    if (_deletedUpdateUndo) {
+                        var p = projects.find(function(pr) { return pr.id === _deletedUpdateUndo.projectId; });
+                        if (p) {
+                            p.updates.splice(_deletedUpdateUndo.index, 0, _deletedUpdateUndo.update);
+                            _deletedUpdateUndo = null;
+                            await saveData();
+                            if (syncMode === 'onedrive' && isOnline) await syncToOneDrive();
+                            renderProjects(); updateStats();
+                            showAlert('Update delete undone!', 'success');
+                        }
+                    }
+                });
             }
         }
 
@@ -6535,13 +6574,13 @@ updateStats();
 
                 return `
                 <div class="project-card ${isSelected ? 'selected' : ''}">
-                    <input type="checkbox" class="project-checkbox" 
-                           ${isSelected ? 'checked' : ''} 
+                    <input type="checkbox" class="project-checkbox"
+                           ${isSelected ? 'checked' : ''}
                            onchange="toggleProjectSelection('${project.id}')">
-                    
+
                     <div class="project-card-content">
                         <div class="project-header">
-                            <div class="project-title">${project.projectName}</div>
+                            <div class="project-title">${sanitizeHTML(project.projectName)}</div>
                             <div class="project-actions">
                                 <button class="btn btn-info btn-small history-btn" data-project-id="${project.id}">&#128220; History</button>
                                 <button class="btn btn-secondary btn-small edit-btn" data-project-id="${project.id}">Edit</button>
@@ -6551,7 +6590,7 @@ updateStats();
 
                         <div class="project-info">
                             <div class="info-item">
-                                <span class="info-label">Status:</span> ${project.status}
+                                <span class="info-label">Status:</span> ${sanitizeHTML(project.status)}
                             </div>
                             <div class="info-item">
                                 <span class="info-label">Created:</span> ${formatDate(project.projectDate)}
@@ -6562,7 +6601,7 @@ updateStats();
                             <div class="tags-section">
                                 <span class="section-label">Industry Groups:</span>
                                 <div class="tags-display">
-                                    ${project.industryGroup.map(ig => `<div class="tag industry">${ig}</div>`).join('')}
+                                    ${project.industryGroup.map(ig => `<div class="tag industry">${sanitizeHTML(ig)}</div>`).join('')}
                                 </div>
                             </div>
                         ` : ''}
@@ -6571,7 +6610,7 @@ updateStats();
                             <div class="tags-section">
                                 <span class="section-label">Company Locations:</span>
                                 <div class="tags-display">
-                                    ${project.companyLocation.map(cl => `<div class="tag location">${cl}</div>`).join('')}
+                                    ${project.companyLocation.map(cl => `<div class="tag location">${sanitizeHTML(cl)}</div>`).join('')}
                                 </div>
                             </div>
                         ` : ''}
@@ -6598,7 +6637,7 @@ updateStats();
                             <div class="tags-section">
                                 <span class="section-label">Project Archetypes:</span>
                                 <div class="archetypes-display">
-                                    ${project.projectArchetype.map(arch => `<span class="archetype-badge">${arch}</span>`).join('')}
+                                    ${project.projectArchetype.map(arch => `<span class="archetype-badge">${sanitizeHTML(arch)}</span>`).join('')}
                                 </div>
                             </div>
                         ` : ''}
@@ -6607,7 +6646,7 @@ updateStats();
                             <div class="tags-section">
                                 <span class="section-label">Project Tags:</span>
                                 <div class="tags-display">
-                                    ${project.projectTags.map(tag => `<div class="tag">${tag}</div>`).join('')}
+                                    ${project.projectTags.map(tag => `<div class="tag">${sanitizeHTML(tag)}</div>`).join('')}
                                 </div>
                             </div>
                         ` : ''}
@@ -7506,10 +7545,10 @@ updateStats();
             emptyState.style.display = 'none';
             
             tbody.innerHTML = filteredProjects.map(project => {
-                const industryTags = (project.industryGroup || []).map(ig => `<span style="display: inline-block; background: #e3f2fd; color: #1976d2; padding: 2px 8px; border-radius: 12px; font-size: 12px; margin: 2px;">${ig}</span>`).join('');
-                const locationTags = (project.companyLocation || []).map(loc => `<span style="display: inline-block; background: #f3e5f5; color: #7b1fa2; padding: 2px 8px; border-radius: 12px; font-size: 12px; margin: 2px;">${loc}</span>`).join('');
-                const archetypeTags = (project.projectArchetype || []).map(arch => `<span style="display: inline-block; background: #fff3e0; color: #e65100; padding: 2px 8px; border-radius: 12px; font-size: 12px; margin: 2px;">${arch}</span>`).join('');
-                const projectTagsList = (project.projectTags || []).map(tag => `<span style="display: inline-block; background: #e8f5e9; color: #2e7d32; padding: 2px 8px; border-radius: 12px; font-size: 12px; margin: 2px;">${tag}</span>`).join('');
+                const industryTags = (project.industryGroup || []).map(ig => `<span style="display: inline-block; background: #e3f2fd; color: #1976d2; padding: 2px 8px; border-radius: 12px; font-size: 12px; margin: 2px;">${sanitizeHTML(ig)}</span>`).join('');
+                const locationTags = (project.companyLocation || []).map(loc => `<span style="display: inline-block; background: #f3e5f5; color: #7b1fa2; padding: 2px 8px; border-radius: 12px; font-size: 12px; margin: 2px;">${sanitizeHTML(loc)}</span>`).join('');
+                const archetypeTags = (project.projectArchetype || []).map(arch => `<span style="display: inline-block; background: #fff3e0; color: #e65100; padding: 2px 8px; border-radius: 12px; font-size: 12px; margin: 2px;">${sanitizeHTML(arch)}</span>`).join('');
+                const projectTagsList = (project.projectTags || []).map(tag => `<span style="display: inline-block; background: #e8f5e9; color: #2e7d32; padding: 2px 8px; border-radius: 12px; font-size: 12px; margin: 2px;">${sanitizeHTML(tag)}</span>`).join('');
                 
                 const statusColors = {
                     'New Lead': '#2196F3',
@@ -7523,10 +7562,10 @@ updateStats();
                 
                 return `
                     <tr style="border-bottom: 1px solid #eee;">
-                        <td style="padding: 12px 8px; font-weight: 500;">${project.projectName}</td>
+                        <td style="padding: 12px 8px; font-weight: 500;">${sanitizeHTML(project.projectName)}</td>
                         <td style="padding: 12px 8px;">
                             <span style="display: inline-block; background: ${statusColors[project.status]}; color: white; padding: 4px 12px; border-radius: 4px; font-size: 12px; font-weight: 500;">
-                                ${project.status}
+                                ${sanitizeHTML(project.status)}
                             </span>
                         </td>
                         <td style="padding: 12px 8px; white-space: nowrap;">${formatDate(project.projectDate)}</td>
@@ -8069,20 +8108,28 @@ updateStats();
                 }]
             };
 
-            if (industryChart) industryChart.destroy();
-            industryChart = new Chart(ctx, {
-                type: 'pie',
-                data: data,
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    plugins: {
-                        legend: {
-                            position: 'bottom'
-                        }
+            if (industryChart) {
+                industryChart.data.labels = Object.keys(industryCount);
+                industryChart.data.datasets[0].data = Object.values(industryCount);
+                industryChart.update('none');
+            } else {
+                industryChart = new Chart(ctx, {
+                    type: 'pie',
+                    data: {
+                        labels: Object.keys(industryCount),
+                        datasets: [{
+                            data: Object.values(industryCount),
+                            backgroundColor: ['#667eea', '#28a745', '#ffc107', '#dc3545', '#17a2b8',
+                                             '#6c757d', '#fd7e14', '#e83e8c', '#20c997', '#6610f2']
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: { legend: { position: 'bottom' } }
                     }
-                }
-            });
+                });
+            }
         }
 
         function renderLocationChart() {
@@ -8123,20 +8170,28 @@ updateStats();
                 }]
             };
 
-            if (locationChart) locationChart.destroy();
-            locationChart = new Chart(ctx, {
-                type: 'pie',
-                data: data,
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    plugins: {
-                        legend: {
-                            position: 'bottom'
-                        }
+            if (locationChart) {
+                locationChart.data.labels = Object.keys(locationCount);
+                locationChart.data.datasets[0].data = Object.values(locationCount);
+                locationChart.update('none');
+            } else {
+                locationChart = new Chart(ctx, {
+                    type: 'pie',
+                    data: {
+                        labels: Object.keys(locationCount),
+                        datasets: [{
+                            data: Object.values(locationCount),
+                            backgroundColor: ['#fd7e14', '#667eea', '#28a745', '#ffc107', '#17a2b8',
+                                             '#dc3545', '#6c757d', '#e83e8c', '#20c997', '#6610f2']
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: { legend: { position: 'bottom' } }
                     }
-                }
-            });
+                });
+            }
         }
 
         function renderTrendsChart() {
@@ -8188,28 +8243,34 @@ updateStats();
                 }]
             };
 
-            if (trendsChart) trendsChart.destroy();
-            trendsChart = new Chart(ctx, {
-                type: 'line',
-                data: data,
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    plugins: {
-                        legend: {
-                            display: false
-                        }
+            if (trendsChart) {
+                trendsChart.data.labels = labels;
+                trendsChart.data.datasets[0].data = values;
+                trendsChart.update('none');
+            } else {
+                trendsChart = new Chart(ctx, {
+                    type: 'line',
+                    data: {
+                        labels: labels,
+                        datasets: [{
+                            label: 'Projects Created',
+                            data: values,
+                            borderColor: '#667eea',
+                            backgroundColor: 'rgba(102, 126, 234, 0.1)',
+                            tension: 0.4,
+                            fill: true
+                        }]
                     },
-                    scales: {
-                        y: {
-                            beginAtZero: true,
-                            ticks: {
-                                stepSize: 1
-                            }
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: { legend: { display: false } },
+                        scales: {
+                            y: { beginAtZero: true, ticks: { stepSize: 1 } }
                         }
                     }
-                }
-            });
+                });
+            }
         }
 
         // Status Distribution Chart
@@ -8248,18 +8309,28 @@ updateStats();
                 }]
             };
             
-            if (statusChart) statusChart.destroy();
-            statusChart = new Chart(ctx, {
-                type: 'doughnut',
-                data: data,
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    plugins: {
-                        legend: { position: 'bottom' }
+            if (statusChart) {
+                statusChart.data.labels = Object.keys(statusCount);
+                statusChart.data.datasets[0].data = Object.values(statusCount);
+                statusChart.data.datasets[0].backgroundColor = Object.keys(statusCount).map(s => statusColors[s] || '#667eea');
+                statusChart.update('none');
+            } else {
+                statusChart = new Chart(ctx, {
+                    type: 'doughnut',
+                    data: {
+                        labels: Object.keys(statusCount),
+                        datasets: [{
+                            data: Object.values(statusCount),
+                            backgroundColor: Object.keys(statusCount).map(s => statusColors[s] || '#667eea')
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: { legend: { position: 'bottom' } }
                     }
-                }
-            });
+                });
+            }
         }
 
         // Projects by Year Chart
@@ -8289,22 +8360,33 @@ updateStats();
                 }]
             };
             
-            if (yearChart) yearChart.destroy();
-            hideChartEmptyState(canvas);
-            yearChart = new Chart(ctx, {
-                type: 'bar',
-                data: data,
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    plugins: {
-                        legend: { display: false }
+            if (yearChart) {
+                yearChart.data.labels = sortedYears;
+                yearChart.data.datasets[0].data = sortedYears.map(y => yearCount[y]);
+                yearChart.update('none');
+            } else {
+                yearChart = new Chart(ctx, {
+                    type: 'bar',
+                    data: {
+                        labels: sortedYears,
+                        datasets: [{
+                            label: 'Projects',
+                            data: sortedYears.map(y => yearCount[y]),
+                            backgroundColor: '#667eea',
+                            borderColor: '#667eea',
+                            borderWidth: 1
+                        }]
                     },
-                    scales: {
-                        y: { beginAtZero: true, ticks: { stepSize: 1 } }
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: { legend: { display: false } },
+                        scales: {
+                            y: { beginAtZero: true, ticks: { stepSize: 1 } }
+                        }
                     }
-                }
-            });
+                });
+            }
         }
 
         // Quick Metrics
@@ -8361,37 +8443,43 @@ updateStats();
                              '#f7971e','#ffd200','#21d4fd','#b721ff','#fd746c',
                              '#00b09b','#96c93d','#ee9ca7','#ffdde1','#2193b0'];
 
-            if (tagChart) tagChart.destroy();
-            tagChart = new Chart(ctx, {
-                type: 'bar',
-                data: {
-                    labels,
-                    datasets: [{
-                        label: 'Projects',
-                        data: values,
-                        backgroundColor: labels.map((_, i) => palette[i % palette.length]),
-                        borderRadius: 4,
-                        borderSkipped: false
-                    }]
-                },
-                options: {
-                    indexAxis: 'y',
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    plugins: {
-                        legend: { display: false },
-                        tooltip: {
-                            callbacks: {
-                                label: ctx => ` ${ctx.raw} project${ctx.raw !== 1 ? 's' : ''}`
-                            }
-                        }
+            if (tagChart) {
+                tagChart.data.labels = labels;
+                tagChart.data.datasets[0].data = values;
+                tagChart.data.datasets[0].backgroundColor = labels.map((_, i) => palette[i % palette.length]);
+                tagChart.update('none');
+            } else {
+                tagChart = new Chart(ctx, {
+                    type: 'bar',
+                    data: {
+                        labels,
+                        datasets: [{
+                            label: 'Projects',
+                            data: values,
+                            backgroundColor: labels.map((_, i) => palette[i % palette.length]),
+                            borderRadius: 4,
+                            borderSkipped: false
+                        }]
                     },
-                    scales: {
-                        x: { beginAtZero: true, ticks: { stepSize: 1 } },
-                        y: { ticks: { font: { size: 12 } } }
+                    options: {
+                        indexAxis: 'y',
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: { display: false },
+                            tooltip: {
+                                callbacks: {
+                                    label: ctx => ` ${ctx.raw} project${ctx.raw !== 1 ? 's' : ''}`
+                                }
+                            }
+                        },
+                        scales: {
+                            x: { beginAtZero: true, ticks: { stepSize: 1 } },
+                            y: { ticks: { font: { size: 12 } } }
+                        }
                     }
-                }
-            });
+                });
+            }
         }
 
         // 2. Priority Breakdown — doughnut
@@ -8417,30 +8505,36 @@ updateStats();
             const colors = { High: '#f44336', Medium: '#ff9800', Low: '#4caf50', 'Not set': '#bdbdbd' };
             const labels = Object.keys(counts);
 
-            if (priorityChart) priorityChart.destroy();
-            priorityChart = new Chart(ctx, {
-                type: 'doughnut',
-                data: {
-                    labels,
-                    datasets: [{
-                        data: labels.map(l => counts[l]),
-                        backgroundColor: labels.map(l => colors[l]),
-                        borderWidth: 2
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    plugins: {
-                        legend: { position: 'bottom' },
-                        tooltip: {
-                            callbacks: {
-                                label: ctx => ` ${ctx.label}: ${ctx.raw} (${((ctx.raw / ctx.dataset.data.reduce((a, b) => a + b, 0)) * 100).toFixed(0)}%)`
+            if (priorityChart) {
+                priorityChart.data.labels = labels;
+                priorityChart.data.datasets[0].data = labels.map(l => counts[l]);
+                priorityChart.data.datasets[0].backgroundColor = labels.map(l => colors[l]);
+                priorityChart.update('none');
+            } else {
+                priorityChart = new Chart(ctx, {
+                    type: 'doughnut',
+                    data: {
+                        labels,
+                        datasets: [{
+                            data: labels.map(l => counts[l]),
+                            backgroundColor: labels.map(l => colors[l]),
+                            borderWidth: 2
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: { position: 'bottom' },
+                            tooltip: {
+                                callbacks: {
+                                    label: ctx => ` ${ctx.label}: ${ctx.raw} (${((ctx.raw / ctx.dataset.data.reduce((a, b) => a + b, 0)) * 100).toFixed(0)}%)`
+                                }
                             }
                         }
                     }
-                }
-            });
+                });
+            }
         }
 
         // 3. Project Archetype Mix — horizontal bar
@@ -8464,29 +8558,34 @@ updateStats();
             const labels = sorted.map(([a]) => a);
             const values = sorted.map(([, v]) => v);
 
-            if (archetypeChart) archetypeChart.destroy();
-            archetypeChart = new Chart(ctx, {
-                type: 'bar',
-                data: {
-                    labels,
-                    datasets: [{
-                        label: 'Projects',
-                        data: values,
-                        backgroundColor: '#764ba2',
-                        borderRadius: 4,
-                        borderSkipped: false
-                    }]
-                },
-                options: {
-                    indexAxis: 'y',
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    plugins: { legend: { display: false } },
-                    scales: {
-                        x: { beginAtZero: true, ticks: { stepSize: 1 } }
+            if (archetypeChart) {
+                archetypeChart.data.labels = labels;
+                archetypeChart.data.datasets[0].data = values;
+                archetypeChart.update('none');
+            } else {
+                archetypeChart = new Chart(ctx, {
+                    type: 'bar',
+                    data: {
+                        labels,
+                        datasets: [{
+                            label: 'Projects',
+                            data: values,
+                            backgroundColor: '#764ba2',
+                            borderRadius: 4,
+                            borderSkipped: false
+                        }]
+                    },
+                    options: {
+                        indexAxis: 'y',
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: { legend: { display: false } },
+                        scales: {
+                            x: { beginAtZero: true, ticks: { stepSize: 1 } }
+                        }
                     }
-                }
-            });
+                });
+            }
         }
 
         // 4. Engagement Health — how many updates each project has (bucketed)
@@ -8513,34 +8612,40 @@ updateStats();
 
             const bgColors = ['#e0e0e0','#ffcc80','#ffb74d','#4db6ac','#26a69a'];
 
-            if (updateFreqChart) updateFreqChart.destroy();
-            updateFreqChart = new Chart(ctx, {
-                type: 'bar',
-                data: {
-                    labels: Object.keys(buckets),
-                    datasets: [{
-                        label: 'Projects',
-                        data: Object.values(buckets),
-                        backgroundColor: bgColors,
-                        borderRadius: 4
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    plugins: {
-                        legend: { display: false },
-                        tooltip: {
-                            callbacks: {
-                                label: ctx => ` ${ctx.raw} project${ctx.raw !== 1 ? 's' : ''}`
-                            }
-                        }
+            if (updateFreqChart) {
+                updateFreqChart.data.labels = Object.keys(buckets);
+                updateFreqChart.data.datasets[0].data = Object.values(buckets);
+                updateFreqChart.data.datasets[0].backgroundColor = bgColors;
+                updateFreqChart.update('none');
+            } else {
+                updateFreqChart = new Chart(ctx, {
+                    type: 'bar',
+                    data: {
+                        labels: Object.keys(buckets),
+                        datasets: [{
+                            label: 'Projects',
+                            data: Object.values(buckets),
+                            backgroundColor: bgColors,
+                            borderRadius: 4
+                        }]
                     },
-                    scales: {
-                        y: { beginAtZero: true, ticks: { stepSize: 1 } }
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: { display: false },
+                            tooltip: {
+                                callbacks: {
+                                    label: ctx => ` ${ctx.raw} project${ctx.raw !== 1 ? 's' : ''}`
+                                }
+                            }
+                        },
+                        scales: {
+                            y: { beginAtZero: true, ticks: { stepSize: 1 } }
+                        }
                     }
-                }
-            });
+                });
+            }
         }
 
         // 5. Win Rate by Industry — only industries with at least one closed (Won/Lost) deal
@@ -8572,41 +8677,47 @@ updateStats();
             const rates  = entries.map(([, v]) => +((v.won / v.total) * 100).toFixed(1));
             const totals = entries.map(([, v]) => v.total);
 
-            if (winRateByIndustryChart) winRateByIndustryChart.destroy();
-            winRateByIndustryChart = new Chart(ctx, {
-                type: 'bar',
-                data: {
-                    labels,
-                    datasets: [{
-                        label: 'Win Rate %',
-                        data: rates,
-                        backgroundColor: rates.map(r => r >= 60 ? '#4caf50' : r >= 30 ? '#ff9800' : '#f44336'),
-                        borderRadius: 4
-                    }]
-                },
-                options: {
-                    indexAxis: 'y',
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    plugins: {
-                        legend: { display: false },
-                        tooltip: {
-                            callbacks: {
-                                label: (ctx) => {
-                                    const i = ctx.dataIndex;
-                                    return ` ${ctx.raw}% (${entries[i][1].won}W / ${totals[i]} closed)`;
+            if (winRateByIndustryChart) {
+                winRateByIndustryChart.data.labels = labels;
+                winRateByIndustryChart.data.datasets[0].data = rates;
+                winRateByIndustryChart.data.datasets[0].backgroundColor = rates.map(r => r >= 60 ? '#4caf50' : r >= 30 ? '#ff9800' : '#f44336');
+                winRateByIndustryChart.update('none');
+            } else {
+                winRateByIndustryChart = new Chart(ctx, {
+                    type: 'bar',
+                    data: {
+                        labels,
+                        datasets: [{
+                            label: 'Win Rate %',
+                            data: rates,
+                            backgroundColor: rates.map(r => r >= 60 ? '#4caf50' : r >= 30 ? '#ff9800' : '#f44336'),
+                            borderRadius: 4
+                        }]
+                    },
+                    options: {
+                        indexAxis: 'y',
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: { display: false },
+                            tooltip: {
+                                callbacks: {
+                                    label: (ctx) => {
+                                        const i = ctx.dataIndex;
+                                        return ` ${ctx.raw}% (${entries[i][1].won}W / ${totals[i]} closed)`;
+                                    }
                                 }
                             }
-                        }
-                    },
-                    scales: {
-                        x: {
-                            beginAtZero: true, max: 100,
-                            ticks: { callback: v => v + '%' }
+                        },
+                        scales: {
+                            x: {
+                                beginAtZero: true, max: 100,
+                                ticks: { callback: v => v + '%' }
+                            }
                         }
                     }
-                }
-            });
+                });
+            }
         }
 
         // Parse company locations and aggregate by province
@@ -9325,7 +9436,8 @@ updateStats();
                 if (hasUpdatesOnly && !noUpdatesOnly && !hasUpdates) return false;
                 if (noUpdatesOnly  && !hasUpdatesOnly && hasUpdates) return false;
                 if (q) {
-                    const txt = [p.projectName, p.productServices||'', (p.projectTags||[]).join(' '), (p.industryGroup||[]).join(' '), (p.companyLocation||[]).join(' ')].join(' ').toLowerCase();
+                    const updText = (p.updates||[]).map(u => htmlToPlainText(u.text)).join(' ');
+                    const txt = [p.projectName, p.productServices||'', p.additionalNotes||'', (p.projectTags||[]).join(' '), (p.industryGroup||[]).join(' '), (p.companyLocation||[]).join(' '), (p.projectArchetype||[]).join(' '), updText].join(' ').toLowerCase();
                     if (!txt.includes(q)) return false;
                 }
                 return true;
@@ -9561,6 +9673,21 @@ updateStats();
 
     </script>
 
+    <!-- Confirm Action Modal -->
+    <div id="confirmModal" class="modal">
+      <div class="modal-content" style="max-width:400px;">
+        <div class="modal-header">
+          <h3 style="margin:0;font-size:16px;">Confirm</h3>
+          <span class="close-modal" onclick="document.getElementById('confirmModal').classList.remove('active')">&times;</span>
+        </div>
+        <div id="confirmModalMessage" style="padding:20px;font-size:14px;color:#444;"></div>
+        <div style="padding:0 20px 20px;display:flex;gap:10px;justify-content:flex-end;">
+          <button id="confirmModalCancel" class="btn btn-secondary">Cancel</button>
+          <button id="confirmModalOk" class="btn btn-primary" style="background:#dc3545;border-color:#dc3545;">Confirm</button>
+        </div>
+      </div>
+    </div>
+
     <!-- Import Report Modal -->
     <div id="importReportModal" class="modal-overlay" style="display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.5);z-index:10001;justify-content:center;align-items:center;">
       <div class="modal-content" style="max-width:500px;">
@@ -9579,7 +9706,7 @@ updateStats();
     <div id="kbShortcutsModal" style="display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.5);z-index:10002;justify-content:center;align-items:center;">
         <div style="background:white;border-radius:12px;padding:28px 32px;max-width:380px;width:90%;box-shadow:0 10px 40px rgba(0,0,0,0.3);">
             <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:18px;">
-                <h3 style="margin:0;font-size:16px;">⌨️ Keyboard Shortcuts</h3>
+                <h3 style="margin:0;font-size:16px;">Keyboard Shortcuts</h3>
                 <button onclick="document.getElementById('kbShortcutsModal').style.display='none'" style="background:none;border:none;font-size:20px;cursor:pointer;color:#666;">&times;</button>
             </div>
             <table style="width:100%;border-collapse:collapse;font-size:13px;">
