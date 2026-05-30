@@ -3996,17 +3996,24 @@ var Vr={},Br={};var Fr=function(){function t(t,e,n){var i=this;this._sleepAfterS
                     'dashboard': {
                         tabId: 'dashboardTab',
                         navIndex: 2,
-                        render: () => {
-                            try { if (typeof updateDashFilterOptions === 'function') updateDashFilterOptions(); }
-                            catch(e) { console.error('❌ updateDashFilterOptions error:', e); }
-                            try { if (typeof renderDashboard === 'function') renderDashboard(); }
-                            catch(e) { console.error('❌ renderDashboard error:', e); }
-                            // Force Chart.js to recalculate canvas sizes after layout settles
-                            setTimeout(() => {
-                                [industryChart, locationChart, trendsChart, statusChart, yearChart,
-                                 tagChart, priorityChart, archetypeChart, updateFreqChart, winRateByIndustryChart
-                                ].forEach(c => { try { if (c) c.resize(); } catch(e) {} });
-                            }, 80);
+                        render: function() {
+                            // Phase 1: update filters immediately
+                            try { if (typeof updateDashFilterOptions === 'function') updateDashFilterOptions(); } catch(e) {}
+                            // Phase 2: render charts only after layout is fully settled
+                            setTimeout(function() {
+                                requestAnimationFrame(function() {
+                                    requestAnimationFrame(function() {
+                                        try { if (typeof renderDashboard === 'function') renderDashboard(); }
+                                        catch(e) { console.error('Dashboard render error:', e); }
+                                        // Resize all existing charts after render
+                                        setTimeout(function() {
+                                            [industryChart, locationChart, trendsChart, statusChart, yearChart,
+                                             tagChart, priorityChart, archetypeChart, updateFreqChart, winRateByIndustryChart]
+                                            .forEach(function(c) { try { if (c) c.resize(); } catch(e) {} });
+                                        }, 100);
+                                    });
+                                });
+                            }, 50);
                         }
                     },
                     'heatmap': {
@@ -7847,8 +7854,10 @@ updateStats();
         }
 
         function getDashboardFilteredProjects() {
-            const dashHasUpdatesOnly = document.getElementById('dashHasUpdatesOnly') && document.getElementById('dashHasUpdatesOnly').checked;
-            const dashNoUpdatesOnly  = document.getElementById('dashNoUpdatesOnly')  && document.getElementById('dashNoUpdatesOnly').checked;
+            const dashHasUpdatesOnlyEl = document.getElementById('dashHasUpdatesOnly');
+            const dashHasUpdatesOnly = dashHasUpdatesOnlyEl ? dashHasUpdatesOnlyEl.checked : false;
+            const dashNoUpdatesOnlyEl = document.getElementById('dashNoUpdatesOnly');
+            const dashNoUpdatesOnly = dashNoUpdatesOnlyEl ? dashNoUpdatesOnlyEl.checked : false;
 
             let result = projects.filter(p => {
                 // Date range filter — respects dashYearScope
@@ -7940,13 +7949,25 @@ updateStats();
             console.log('renderDashboard called');
             console.log('Projects count:', projects.length);
             console.log('Chart.js loaded:', typeof Chart !== 'undefined');
-            
+
+            // Hard-reset all dashboard canvases to visible, remove any stale overlays
+            ['industryChart','locationChart','trendsChart','statusChart','yearChart',
+             'tagChart','priorityChart','archetypeChart','updateFreqChart','winRateByIndustryChart']
+            .forEach(function(id) {
+                const c = document.getElementById(id);
+                if (c) {
+                    c.style.opacity = '1';
+                    const parent = c.parentElement;
+                    if (parent) parent.querySelectorAll('.chart-empty-state').forEach(function(el) { el.remove(); });
+                }
+            });
+
             if (typeof Chart === 'undefined') {
                 console.error('Chart.js not loaded (OFFLINE MODE ERROR)');
                 alert('Chart library not loaded. This should not happen in offline mode. Please try reopening the file.');
                 return;
             }
-            
+
             if (projects.length === 0) {
                 const label = document.getElementById('dashFilterLabel');
                 if (label) label.textContent = '';
