@@ -3331,12 +3331,12 @@ var Vr={},Br={};var Fr=function(){function t(t,e,n){var i=this;this._sleepAfterS
         let tableSelectedTags       = new Set();
 
         // Dashboard multi-select filter state
-        let dashSelectedStatuses   = new Set();
-        let dashSelectedYears      = new Set();
-        let dashSelectedIndustries = new Set();
-        let dashSelectedLocations  = new Set();
-        let dashSelectedArchetypes = new Set();
-        let dashSelectedTags       = new Set();
+        var dashSelectedStatuses   = new Set();
+        var dashSelectedYears      = new Set();
+        var dashSelectedIndustries = new Set();
+        var dashSelectedLocations  = new Set();
+        var dashSelectedArchetypes = new Set();
+        var dashSelectedTags       = new Set();
 
         // Heatmap multi-select filter state
         let hmSelectedStatuses   = new Set();
@@ -5837,6 +5837,10 @@ updateStats();
             }
         }
 
+        window.safeSetInterval = function safeSetInterval(fn, ms) {
+            return setInterval(fn, ms);
+        };
+
         // Keep the last-synced label fresh without a full status rebuild
         let _lastSuccessfulSync = null;
         safeSetInterval(() => updateSyncStatus(), 30000);
@@ -7664,8 +7668,8 @@ updateStats();
         // ===== END TABLE VIEW FUNCTIONS =====
 
         // ── Dashboard date-filter state ──────────────────────────────────────
-        let dashFilterStart = null;   // ISO date string or null
-        let dashFilterEnd   = null;   // ISO date string or null
+        var dashFilterStart = null;   // ISO date string or null
+        var dashFilterEnd   = null;   // ISO date string or null
 
         // ===== SHARED DATE HELPERS =====
         /**
@@ -9058,8 +9062,8 @@ updateStats();
         }
 
         // Enhanced Sync Monitoring and Data Persistence
-        let lastDataChangeTime = null;
-        let syncCheckInterval = null;
+        var lastDataChangeTime = null;
+        var syncCheckInterval = null;
 
         function startSyncMonitoring() {
             // Check sync status every 30 seconds
