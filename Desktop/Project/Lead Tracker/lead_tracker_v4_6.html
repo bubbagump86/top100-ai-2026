@@ -1951,7 +1951,7 @@ var Vr={},Br={};var Fr=function(){function t(t,e,n){var i=this;this._sleepAfterS
                 renderProjects();
                 updateStats();
                 updateSyncStatus('Synced');
-                showAlert('&#9989; All ' + pendingChanges.length + ' offline changes synced to OneDrive!', 'success');
+                showAlert('All ' + pendingChanges.length + ' offline changes synced to OneDrive!', 'success');
                 
             } catch (error) {
                 console.error('Offline sync failed:', error);
@@ -2027,7 +2027,7 @@ var Vr={},Br={};var Fr=function(){function t(t,e,n){var i=this;this._sleepAfterS
                 renderProjects();
                 updateStats();
                 updateSyncStatus('Synced');
-                showAlert('&#9989; Conflict resolved and synced to OneDrive!', 'success');
+                showAlert('Conflict resolved and synced to OneDrive!', 'success');
             } catch (error) {
                 console.error('Conflict resolution failed:', error);
                 showAlert('&#9888;️ Could not write to OneDrive: ' + error.message, 'error');
@@ -4051,9 +4051,9 @@ function updateArchetypeFilterDisplay() {
             updateSyncStatus('Syncing...');
             const syncSuccess = await syncToOneDrive();
             if (syncSuccess) {
-                showAlert('&#9989; OneDrive sync is now active! Data written to OneDrive successfully.', 'success');
+                showAlert('OneDrive sync is now active! Data written to OneDrive successfully.', 'success');
             } else {
-                showAlert('&#9989; Linked to OneDrive file. Click &#128260; Sync to push your data.', 'info');
+                showAlert('Linked to OneDrive file. Click Sync to push your data.', 'info');
             }
         }
 
@@ -4115,7 +4115,7 @@ function updateArchetypeFilterDisplay() {
                     renderArchetypeFilterOptions();
                     updateYearFilter();
 
-                    showAlert('&#9989; Data linked! Use "&#128190; Save to OneDrive" to export your data back to OneDrive/SharePoint after making changes.', 'success');
+                    showAlert('Data linked! Use "Save to OneDrive" to export your data back to OneDrive/SharePoint after making changes.', 'success');
                 } catch (error) {
                     console.error('Import error:', error);
                     showAlert('Failed to import file: ' + error.message, 'error');
@@ -4157,7 +4157,7 @@ function updateArchetypeFilterDisplay() {
                     updateSyncStatus('Synced');
                     clearSyncQueue();
                     isSyncing = false;
-                    showAlert('&#9989; Data synced to file successfully!', 'success');
+                    showAlert('Data synced to file successfully!', 'success');
                     return true;
                 } catch (err) {
                     console.warn('Direct file write failed, falling back to download:', err.message);
@@ -4184,7 +4184,7 @@ function updateArchetypeFilterDisplay() {
                 updateSyncStatus('Synced');
                 clearSyncQueue();
                 isSyncing = false;
-                showAlert('&#9989; Data exported as "' + filename + '". Save it to your OneDrive/SharePoint folder to complete the sync.', 'info');
+                showAlert('Data exported as "' + filename + '". Save it to your OneDrive/SharePoint folder to complete the sync.', 'info');
                 return true;
             } catch (err) {
                 console.error('Sync download fallback failed:', err);
@@ -5664,7 +5664,7 @@ updateStats();
                 renderTagFilterOptions();
                 updateYearFilter();
                 
-                alert(`&#9989; Successfully imported ${projects.length} projects from JSON!`);
+                alert('Successfully imported ' + projects.length + ' projects from JSON!');
                 console.log('JSON import successful:', projects.length, 'projects');
                 
             } catch (error) {
