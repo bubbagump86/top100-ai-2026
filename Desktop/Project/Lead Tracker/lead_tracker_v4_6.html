@@ -73,7 +73,10 @@
         .sync-indicator.warning { background: var(--warning); }
         .sync-indicator.error { background: var(--danger); }
         @keyframes pulse { 0%,100% { opacity:1; transform:scale(1); } 50% { opacity:0.5; transform:scale(1.2); } }
-        .dark-mode-btn { background: transparent; color: var(--text-muted); border: none; padding: 6px; font-size: 16px; cursor: pointer; border-radius: var(--radius-sm); flex-shrink: 0; }
+        body.dark-mode .sync-indicator { background: var(--success); }
+        body.dark-mode .sync-indicator.syncing { background: var(--accent); }
+        body.dark-mode .sync-indicator.warning { background: var(--warning); }
+        body.dark-mode .sync-indicator.error { background: var(--danger); }
         .dark-mode-btn:hover { color: var(--text-primary); background: var(--surface-3); }
         .sync-mode-badge { display: none; }
         #lastSyncedLabel { font-size: 11px; color: var(--text-faint); }
@@ -271,6 +274,8 @@
         /* ── TABLE ── */
         table { width: 100%; border-collapse: collapse; font-size: 13px; }
         thead { background: var(--surface-2); }
+        body.dark-mode thead { background: var(--surface-3) !important; }
+        body.dark-mode th { background: var(--surface-3) !important; color: var(--text-primary); }
         th { font-size: 11px; font-weight: 600; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.03em; padding: 8px 12px; border-bottom: 1px solid var(--border); text-align: left; }
         td { padding: 8px 12px; border-bottom: 1px solid var(--border); font-size: 13px; color: var(--text-primary); }
         tbody tr:hover { background: var(--surface-3); }
@@ -411,7 +416,7 @@
 
     <div class="container">
         <header>
-            <button id="darkModeToggle" class="dark-mode-btn" onclick="toggleDarkMode()" title="Toggle Dark Mode">&#9680;</button>
+            <button id="darkModeToggle" class="dark-mode-btn" onclick="toggleDarkMode()" title="Toggle Dark Mode"><svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor"><path d="M21.4 13.7c-.8 1.8-2.6 3-4.6 3-2.8 0-5-2.2-5-5 0-1.8.9-3.4 2.4-4.3.3-.2.5-.5.4-.9s-.4-.6-.8-.7c-.5-.1-1-.2-1.5-.2-4.1 0-7.5 3.4-7.5 7.5s3.4 7.5 7.5 7.5c3.2 0 6-2 7.1-5 .1-.3 0-.6-.3-.8s-.6-.3-.9-.1z"/></svg></button>
             <img src="edb-logo.svg" alt="EDB" width="65" height="30" style="flex-shrink:0;">
             <div class="header-center">
                 <h1>Project Lead Tracker</h1>
@@ -3186,7 +3191,7 @@ function updateArchetypeFilterDisplay() {
             const isDarkMode = document.body.classList.toggle('dark-mode');
             localStorage.setItem('darkMode', isDarkMode);
             const btn = document.getElementById('darkModeToggle');
-            btn.textContent = isDarkMode ? '&#9728;' : '&#9680;';
+            btn.innerHTML = isDarkMode ? '<svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor"><path d="M12 3c-4.97 0-9 4.03-9 9s4.03 9 9 9 9-4.03 9-9-4.03-9-9-9zm0 16c-3.86 0-7-3.14-7-7s3.14-7 7-7 7 3.14 7 7-3.14 7-7 7z"/></svg>' : '<svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor"><path d="M21.4 13.7c-.8 1.8-2.6 3-4.6 3-2.8 0-5-2.2-5-5 0-1.8.9-3.4 2.4-4.3.3-.2.5-.5.4-.9s-.4-.6-.8-.7c-.5-.1-1-.2-1.5-.2-4.1 0-7.5 3.4-7.5 7.5s3.4 7.5 7.5 7.5c3.2 0 6-2 7.1-5 .1-.3 0-.6-.3-.8s-.6-.3-.9-.1z"/></svg>';
             showNotification('Dark mode ' + (isDarkMode ? 'enabled' : 'disabled'), 'info', 2000);
         }
 
@@ -3195,7 +3200,7 @@ function updateArchetypeFilterDisplay() {
             const isDarkMode = localStorage.getItem('darkMode') !== 'false';
             if (isDarkMode) {
                 document.body.classList.add('dark-mode');
-                document.getElementById('darkModeToggle').textContent = '&#9728;';
+                document.getElementById('darkModeToggle').innerHTML = '<svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor"><path d="M12 3c-4.97 0-9 4.03-9 9s4.03 9 9 9 9-4.03 9-9-4.03-9-9-9zm0 16c-3.86 0-7-3.14-7-7s3.14-7 7-7 7 3.14 7 7-3.14 7-7 7z"/></svg>';
             }
         }
 
