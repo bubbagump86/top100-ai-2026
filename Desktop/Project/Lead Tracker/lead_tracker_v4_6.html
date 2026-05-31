@@ -300,7 +300,8 @@
         .kanban-board { display: flex; gap: 8px; overflow-x: auto; padding: 16px 0; align-items: flex-start; justify-content: center; }
         .kanban-col { min-width: 160px; max-width: 200px; flex: 0 1 auto; background: var(--surface-2); border: 1px solid var(--border); border-radius: var(--radius-md); padding: 6px; }
         .kanban-col-header { font-size: 12px; font-weight: 600; padding: 6px 8px; margin-bottom: 8px; display: flex; justify-content: space-between; align-items: center; color: var(--text-primary); cursor: default; }
-        .kanban-col-body { min-height: 60px; display: flex; flex-direction: column; gap: 6px; }
+        .kanban-col-body { min-height: 60px; display: flex; flex-direction: column; gap: 6px; pointer-events: auto; }
+        .kanban-col-body .kanban-card { pointer-events: auto; }
         .kanban-card { background: var(--surface-2); border: 1px solid var(--border); border-radius: var(--radius-md); padding: 8px; cursor: grab; transition: border-color 0.15s, transform 0.15s; user-select: none; }
         .kanban-card:hover { border-color: var(--accent); transform: translateY(-1px); }
         .kanban-card.dragging { opacity: 0.4; }
@@ -7941,8 +7942,9 @@ updateStats();
                 var emptyCol = cards.length === 0 ? '<div style="color:var(--text-faint);text-align:center;padding:20px;font-size:11px">Drop here</div>' : '';
                 return `
                     <div class="kanban-col" data-status="${status}"
-                        ondragover="kanbanDragOver(event)" ondrop="kanbanDrop(event,'${status}')"
-                        ondragleave="kanbanDragLeave(event)">
+                        ondragover="event.preventDefault();event.stopPropagation();event.dataTransfer.dropEffect='move';event.currentTarget.closest('.kanban-col').classList.add('drag-over');"
+                        ondrop="kanbanDrop(event,'${status}')"
+                        ondragleave="var c=event.currentTarget.closest('.kanban-col');if(!c.contains(event.relatedTarget))c.classList.remove('drag-over');">
                         <div class="kanban-col-header" style="background:${statusColors[status]}20; color:${statusColors[status]}">
                             <span>${status}</span>
                             <span style="background:${statusColors[status]};color:white;padding:2px 8px;border-radius:10px;font-size:11px">${cards.length}</span>
