@@ -384,11 +384,14 @@
             input[type="text"], input[type="date"], textarea, select { min-height: 44px; font-size: 16px !important; }
         }
 
+
+        /* ── Whitespace fix: remove all top spacing below tab bar ── */
         html, body { margin: 0; padding: 0; }
-        #tableTab, #kanbanTab { padding-top: 0 !important; margin-top: 0 !important; }
+        #tableTab,
+        #kanbanTab { padding-top: 0 !important; margin-top: 0 !important; }
+        #tableTab .filters-bar,
+        #kanbanTab .filters-bar { margin-top: 0 !important; }
         #tableDateFilterBar { margin-top: 0 !important; }
-        .filters-bar { margin-top: 0 !important; }
-        #kanbanTab .kanban-board { margin-top: 0; }
     </style>
 </head>
 <body>
