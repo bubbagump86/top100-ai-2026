@@ -86,16 +86,13 @@
         .nav-tab.active { color: var(--accent); border-bottom-color: var(--accent); }
 
         /* ── TABS ── */
-        .tab-content { display: none; }
-        .tab-content.active { display: block; padding-top: 0; margin-top: 0; }
-
-        #tableTab > div:first-child,
-        #kanbanTab > div:first-child {
-          margin-top: 0 !important;
-          padding-top: 8px !important;
-        }
-
-        /* ── MAIN LAYOUT ── */
+        .tab-content { display: none; padding-top: 0 !important; margin-top: 0 !important; }
+        .tab-content.active { display: block; padding-top: 0 !important; margin-top: 0 !important; }
+        #tableTab, #kanbanTab { padding-top: 0 !important; margin-top: 0 !important; }
+        #tableTab *, #kanbanTab * { margin-top: 0 !important; padding-top: 0 !important; }
+        #tableDateFilterBar { margin-top: 0 !important; padding-top: 10px !important; }
+        .filters-bar { margin-top: 0 !important; }
+        .dashboard-content, .main-content { padding-top: 16px !important; }
         .main-content { display: grid; grid-template-columns: 320px 1fr; gap: 16px; padding: 16px; }
 
         /* ── SIDEBAR ── */
@@ -398,8 +395,8 @@
           padding-top: 0 !important;
           margin-top: 0 !important;
         }
-        #tableTab > div,
-        #kanbanTab > div {
+        #tableTab *,
+        #kanbanTab * {
           margin-top: 0 !important;
           padding-top: 0 !important;
         }
@@ -1119,10 +1116,10 @@
         </div>
 
     <!-- Table View Tab -->
-    <div id="tableTab" class="tab-content" style="padding-top: 0; margin-top: 0;">
+    <div id="tableTab" class="tab-content">
 
         <!-- Table Date Filter Bar -->
-        <div id="tableDateFilterBar" style="background: white; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); padding: 10px 20px; margin: 0 20px 0 20px; display: flex; gap: 12px; align-items: flex-end; flex-wrap: wrap;">
+        <div id="tableDateFilterBar" style="background: white; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); padding: 10px 20px 0px 20px; margin: 0 20px 0 20px; display: flex; gap: 12px; align-items: flex-end; flex-wrap: wrap;">
             <div style="flex: 1; min-width: 150px;">
                 <label for="tableStartDate" style="display: block; font-weight: 600; color: #333; margin-bottom: 5px; font-size: 13px;">From</label>
                 <input type="date" id="tableStartDate" style="width: 100%; padding: 7px 10px; border: 1px solid #ddd; border-radius: 4px; font-size: 14px;">
