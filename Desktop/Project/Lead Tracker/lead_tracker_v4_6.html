@@ -164,7 +164,11 @@
         .tags-section { margin-top: 8px; }
         .section-label { font-size: 11px; font-weight: 500; color: var(--text-muted); display: block; margin-bottom: 4px; }
         .project-notes { margin-top: 8px; padding: 8px; background: var(--surface-3); border-radius: var(--radius-sm); font-size: 13px; line-height: 1.4; }
-        .rich-text-display { max-width: 100%; white-space: pre-wrap; word-wrap: break-word; line-height: 1.4; font-size: 13px; }
+        .rich-text-display { max-width: 100%; white-space: pre-wrap; word-wrap: break-word; line-height: 1.6; font-size: 13px; }
+        .rich-text-display p { margin-bottom: 8px; }
+        .rich-text-display p:last-child { margin-bottom: 0; }
+        .rich-text-display br + br { display: none; }
+        .rich-text-display br + p { margin-top: 4px; }
         .content-area { display: flex; flex-direction: column; gap: 16px; }
 
         /* ── UPDATES ── */
