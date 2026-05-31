@@ -87,7 +87,7 @@
 
         /* ── TABS ── */
         .tab-content { display: none; }
-        .tab-content.active { display: block; }
+        .tab-content.active { display: block; padding-top: 0; }
 
         /* ── MAIN LAYOUT ── */
         .main-content { display: grid; grid-template-columns: 320px 1fr; gap: 16px; padding: 16px; }
@@ -294,8 +294,8 @@
         .history-empty { text-align: center; padding: 40px; color: var(--text-muted); font-style: italic; }
 
         /* ── KANBAN ── */
-        .kanban-board { display: flex; gap: 12px; overflow-x: auto; padding: 16px; align-items: flex-start; }
-        .kanban-col { min-width: 220px; max-width: 260px; flex-shrink: 0; background: var(--surface-2); border: 1px solid var(--border); border-radius: var(--radius-md); padding: 8px; }
+        .kanban-board { display: flex; gap: 12px; overflow-x: auto; padding: 16px; align-items: flex-start; justify-content: center; flex-wrap: wrap; }
+        .kanban-col { min-width: 220px; max-width: 260px; flex: 0 1 240px; flex-shrink: 0; background: var(--surface-2); border: 1px solid var(--border); border-radius: var(--radius-md); padding: 8px; }
         .kanban-col-header { font-size: 12px; font-weight: 600; padding: 6px 8px; margin-bottom: 8px; display: flex; justify-content: space-between; align-items: center; color: var(--text-primary); }
         .kanban-card { background: var(--surface-2); border: 1px solid var(--border); border-radius: var(--radius-md); padding: 10px; margin-bottom: 8px; cursor: grab; transition: border-color 0.15s, transform 0.15s; user-select: none; }
         .kanban-card:hover { border-color: var(--accent); transform: translateY(-1px); }
@@ -987,7 +987,7 @@
 
         <!-- Kanban Tab -->
         <div id="kanbanTab" class="tab-content">
-          <div style="padding: 20px;">
+          <div style="padding: 8px 20px 20px 20px;">
             <h2 style="color: #667eea; margin-bottom: 16px;">🗂️ Pipeline Kanban</h2>
 
             <!-- Kanban Filter Bar -->
@@ -1098,7 +1098,7 @@
     <div id="tableTab" class="tab-content">
 
         <!-- Table Date Filter Bar -->
-        <div id="tableDateFilterBar" style="background: white; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); padding: 14px 20px; margin: 20px 20px 0 20px; display: flex; gap: 12px; align-items: flex-end; flex-wrap: wrap;">
+        <div id="tableDateFilterBar" style="background: white; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); padding: 14px 20px; margin: 8px 20px 0 20px; display: flex; gap: 12px; align-items: flex-end; flex-wrap: wrap;">
             <div style="flex: 1; min-width: 150px;">
                 <label for="tableStartDate" style="display: block; font-weight: 600; color: #333; margin-bottom: 5px; font-size: 13px;">From</label>
                 <input type="date" id="tableStartDate" style="width: 100%; padding: 7px 10px; border: 1px solid #ddd; border-radius: 4px; font-size: 14px;">
@@ -7927,7 +7927,7 @@ updateStats();
                 return `
                     <div class="kanban-col" data-status="${status}"
                         ondragover="kanbanDragOver(event)" ondrop="kanbanDrop(event,'${status}')"
-                        ondragleave="kanbanDragLeave(event)">
+                        ondragleave="kanbanDragLeave(event)" style="min-height:200px;">
                         <div class="kanban-col-header" style="background:${statusColors[status]}20; color:${statusColors[status]}">
                             <span>${status}</span>
                             <span style="background:${statusColors[status]};color:white;padding:2px 8px;border-radius:10px;font-size:11px">${cards.length}</span>
@@ -8075,36 +8075,44 @@ updateStats();
         }
         function kanbanDragOver(event) {
             event.preventDefault();
-            event.currentTarget.classList.add('drag-over');
+            event.stopPropagation();
+            const col = event.currentTarget.closest('.kanban-col') || event.currentTarget;
+            col.classList.add('drag-over');
         }
         function kanbanDragLeave(event) {
-            event.currentTarget.classList.remove('drag-over');
+            const col = event.currentTarget;
+            const related = event.relatedTarget;
+            if (!related || !col.contains(related)) {
+                col.classList.remove('drag-over');
+            }
         }
         async function kanbanDrop(event, newStatus) {
             event.preventDefault();
-            event.currentTarget.classList.remove('drag-over');
-            if (!kanbanDragId) return;
-            const idx = projects.findIndex(p => p.id === kanbanDragId);
-            if (idx === -1) return;
-            const oldStatus = projects[idx].status;
-            if (oldStatus === newStatus) return;
-            // Apply status change log (#4)
-            projects[idx].updates = projects[idx].updates || [];
-            projects[idx].updates.unshift({
+            event.stopPropagation();
+            const col = event.currentTarget.closest('.kanban-col') || event.currentTarget;
+            col.classList.remove('drag-over');
+            const id = window.kbDragId;
+            window.kbDragging = false;
+            window.kbDragId = null;
+            if (!id) return;
+            const project = projects.find(p => p.id === id);
+            if (!project || project.status === newStatus) return;
+            const oldStatus = project.status;
+            project.status = newStatus;
+            project.updates = project.updates || [];
+            project.updates.unshift({
                 id: generateId(),
                 timestamp: new Date().toISOString(),
                 text: `<em class="status-change-log">Status changed: <strong>${oldStatus}</strong> \u2192 <strong>${newStatus}</strong></em>`,
                 isSystemEntry: true
             });
-            projects[idx].status = newStatus;
             saveData();
-            recordChange('edit', projects[idx].id, projects[idx]);
+            recordChange('edit', project.id, project);
             if (syncMode === 'onedrive' && isOnline) await syncToOneDrive();
             renderKanban();
             renderProjects();
             updateStats();
             showNotification(`Moved to "${newStatus}"`, 'success');
-            kanbanDragId = null;
         }
         // ===== END UPGRADE #6 =====
 
