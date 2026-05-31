@@ -297,10 +297,11 @@
         .history-empty { text-align: center; padding: 40px; color: var(--text-muted); font-style: italic; }
 
         /* ── KANBAN ── */
-        .kanban-board { display: flex; gap: 8px; overflow-x: auto; padding: 16px 0; align-items: flex-start; }
-        .kanban-col { min-width: 180px; max-width: 200px; flex: 1 1 0; background: var(--surface-2); border: 1px solid var(--border); border-radius: var(--radius-md); padding: 6px; }
-        .kanban-col-header { font-size: 12px; font-weight: 600; padding: 6px 8px; margin-bottom: 8px; display: flex; justify-content: space-between; align-items: center; color: var(--text-primary); }
-        .kanban-card { background: var(--surface-2); border: 1px solid var(--border); border-radius: var(--radius-md); padding: 10px; margin-bottom: 8px; cursor: grab; transition: border-color 0.15s, transform 0.15s; user-select: none; }
+        .kanban-board { display: flex; gap: 8px; overflow-x: auto; padding: 16px 0; align-items: flex-start; justify-content: center; }
+        .kanban-col { min-width: 160px; max-width: 200px; flex: 0 1 auto; background: var(--surface-2); border: 1px solid var(--border); border-radius: var(--radius-md); padding: 6px; }
+        .kanban-col-header { font-size: 12px; font-weight: 600; padding: 6px 8px; margin-bottom: 8px; display: flex; justify-content: space-between; align-items: center; color: var(--text-primary); cursor: default; }
+        .kanban-col-body { min-height: 60px; display: flex; flex-direction: column; gap: 6px; }
+        .kanban-card { background: var(--surface-2); border: 1px solid var(--border); border-radius: var(--radius-md); padding: 8px; cursor: grab; transition: border-color 0.15s, transform 0.15s; user-select: none; }
         .kanban-card:hover { border-color: var(--accent); transform: translateY(-1px); }
         .kanban-card.dragging { opacity: 0.4; }
         .kanban-card-title { font-weight: 600; font-size: 13px; margin-bottom: 4px; color: var(--text-primary); }
@@ -7935,15 +7936,16 @@ updateStats();
                     return kanbanSortDir === 'asc' ? cmp : -cmp;
                 });
                 // Show count in col header and optionally collapse column when empty
-                var emptyCol = cards.length === 0 ? '<div style="color:var(--text-faint);text-align:center;padding:12px;font-size:11px">Drop here</div>' : '';
+                var emptyCol = cards.length === 0 ? '<div style="color:var(--text-faint);text-align:center;padding:20px;font-size:11px">Drop here</div>' : '';
                 return `
                     <div class="kanban-col" data-status="${status}"
                         ondragover="kanbanDragOver(event)" ondrop="kanbanDrop(event,'${status}')"
-                        ondragleave="kanbanDragLeave(event)" style="min-height:80px;">
+                        ondragleave="kanbanDragLeave(event)">
                         <div class="kanban-col-header" style="background:${statusColors[status]}20; color:${statusColors[status]}">
                             <span>${status}</span>
                             <span style="background:${statusColors[status]};color:white;padding:2px 8px;border-radius:10px;font-size:11px">${cards.length}</span>
                         </div>
+                        <div class="kanban-col-body">
                         ${emptyCol}
                         ${cards.map(p => {
                             const priorityColors = {'High':'#f44336','Medium':'#ff9800','Low':'#4caf50'};
@@ -7972,6 +7974,7 @@ updateStats();
                                 </div>
                             </div>
                         `}).join('')}
+                        </div>
                     </div>
                 `;
             }).join('');
