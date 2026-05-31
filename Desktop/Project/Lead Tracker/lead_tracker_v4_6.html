@@ -297,8 +297,8 @@
         .history-empty { text-align: center; padding: 40px; color: var(--text-muted); font-style: italic; }
 
         /* ── KANBAN ── */
-        .kanban-board { display: flex; gap: 12px; overflow-x: auto; padding: 16px; align-items: flex-start; justify-content: center; flex-wrap: wrap; }
-        .kanban-col { min-width: 220px; max-width: 260px; flex: 0 1 240px; flex-shrink: 0; background: var(--surface-2); border: 1px solid var(--border); border-radius: var(--radius-md); padding: 8px; }
+        .kanban-board { display: flex; gap: 8px; overflow-x: auto; padding: 16px 0; align-items: flex-start; }
+        .kanban-col { min-width: 180px; max-width: 200px; flex: 1 1 0; background: var(--surface-2); border: 1px solid var(--border); border-radius: var(--radius-md); padding: 6px; }
         .kanban-col-header { font-size: 12px; font-weight: 600; padding: 6px 8px; margin-bottom: 8px; display: flex; justify-content: space-between; align-items: center; color: var(--text-primary); }
         .kanban-card { background: var(--surface-2); border: 1px solid var(--border); border-radius: var(--radius-md); padding: 10px; margin-bottom: 8px; cursor: grab; transition: border-color 0.15s, transform 0.15s; user-select: none; }
         .kanban-card:hover { border-color: var(--accent); transform: translateY(-1px); }
