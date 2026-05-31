@@ -997,7 +997,7 @@
 
         <!-- Kanban Tab -->
         <div id="kanbanTab" class="tab-content" style="padding-top: 0; margin-top: 0;">
-          <div style="padding: 0 20px 20px 20px;">
+          <div style="max-width:1400px;margin:0 auto;padding:0 20px 20px 20px;">
             <h2 style="color: #667eea; margin: 0 0 4px 0;">🗂️ Pipeline Kanban</h2>
 
             <!-- Kanban Filter Bar -->
@@ -1106,9 +1106,9 @@
 
     <!-- Table View Tab -->
     <div id="tableTab" class="tab-content">
-
+        <div style="max-width:1400px;margin:0 auto;padding-top:0;">
         <!-- Table Date Filter Bar -->
-        <div id="tableDateFilterBar" style="background: var(--surface-2); border-radius: 0 0 8px 8px; padding: 8px 20px; margin: 0 20px 0 20px; display: flex; gap: 12px; align-items: flex-end; flex-wrap: wrap;">
+        <div id="tableDateFilterBar" style="background: var(--surface-2); border-radius: 0; padding: 8px 20px; margin: 0; display: flex; gap: 12px; align-items: flex-end; flex-wrap: wrap;">
             <div style="flex: 1; min-width: 150px;">
                 <label for="tableStartDate" style="display: block; font-weight: 600; color: #333; margin-bottom: 5px; font-size: 13px;">From</label>
                 <input type="date" id="tableStartDate" style="width: 100%; padding: 7px 10px; border: 1px solid #ddd; border-radius: 4px; font-size: 14px;">
@@ -1139,7 +1139,7 @@
             <div id="tableFilterLabel" style="width: 100%; font-size: 12px; color: #888; margin-top: 2px;"></div>
         </div>
 
-        <div class="filters-bar" style="margin: 0 20px 0 20px; display: flex; gap: 10px; flex-wrap: wrap;">
+        <div class="filters-bar" style="margin: 0; display: flex; gap: 10px; flex-wrap: wrap;">
             <div style="flex: 1; min-width: 250px; position: relative; display: flex; align-items: center;">
                 <input type="text" id="tableSearchInput" placeholder="&#128269; Search by name, description, notes, or tags..." style="width: 100%; padding: 8px 32px 8px 8px; border: 1px solid #ddd; border-radius: 4px; font-size: 14px;">
                 <button id="tableClearSearch" onclick="clearTableSearch()" style="position: absolute; right: 4px; background: none; border: none; color: #999; cursor: pointer; padding: 4px 8px; font-size: 18px; display: none;" title="Clear search">&#10005;</button>
@@ -1205,12 +1205,12 @@
             <button class="btn btn-success btn-small" onclick="exportTableToExcel()" style="white-space: nowrap;">&#128202; Export Filtered</button>
         </div>
         
-        <div id="tableResultsCount" style="margin: 10px 20px 0 20px; color: #666; font-size: 14px; display: none;">
+        <div id="tableResultsCount" style="margin: 10px 0 0 0; padding: 0 20px; color: #666; font-size: 14px; display: none;">
             <strong id="tableResultsNumber">0</strong> projects match your filters
         </div>
 
         <!-- Date scope toggle — standalone, always visible -->
-        <div style="margin: 8px 20px 0 20px; background: white; /* DARK-MODE-OVERRIDE */ border-radius: 8px; box-shadow: 0 1px 3px rgba(0,0,0,0.08); padding: 10px 16px; display: flex; gap: 12px; align-items: center; flex-wrap: wrap;">
+        <div style="margin: 8px 0 0 0; padding: 0 20px; background: white; /* DARK-MODE-OVERRIDE */ border-radius: 8px; box-shadow: 0 1px 3px rgba(0,0,0,0.08); padding: 10px 16px; display: flex; gap: 12px; align-items: center; flex-wrap: wrap;">
             <span style="font-weight: 600; color: #555; font-size: 12px; white-space: nowrap;">Date scope:</span>
             <div id="tableYearScopeWrap" class="year-scope-toggle" title="Choose which date to match the Year filter and date range against">
                 <button id="tbl_scope_created" class="active" onclick="setTableYearScope('created')">Created</button>
@@ -1221,14 +1221,14 @@
         </div>
 
         <!-- Industry Group Quick Metrics -->
-        <div id="tableIndustryMetricsPanel" style="margin: 14px 20px 0 20px; background: white; /* DARK-MODE-OVERRIDE */ border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); padding: 16px 20px;">
+        <div id="tableIndustryMetricsPanel" style="margin: 14px 0 0 0; padding: 0 20px; background: white; /* DARK-MODE-OVERRIDE */ border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); padding: 16px 20px;">
             <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px;">
                 <h4 style="color: #667eea; margin: 0; font-size: 14px;">&#128202; Industry Group Distribution <span id="tableIndustryMetricsSubtitle" style="font-weight: normal; color: #888; font-size: 12px;"></span></h4>
             </div>
             <div id="tableIndustryMetrics" style="display: flex; flex-wrap: wrap; gap: 10px;"></div>
         </div>
 
-        <div style="margin: 14px 20px 20px 20px; background: white; /* DARK-MODE-OVERRIDE */ border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); overflow: hidden;">
+        <div style="margin: 14px 0 0 0; padding: 0 20px 20px 20px; background: white; /* DARK-MODE-OVERRIDE */ border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); overflow: hidden;">
             <div style="overflow-x: auto;">
                 <table id="projectsTable" style="width: 100%; border-collapse: collapse; font-size: 14px;">
                     <thead>
