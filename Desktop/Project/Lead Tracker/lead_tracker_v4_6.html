@@ -6062,8 +6062,8 @@ updateStats();
             // Update year filter — include both creation years and update years
             const years = new Set();
             projects.forEach(p => {
-                years.add(new Date(p.projectDate).getFullYear());
-                (p.updates || []).forEach(u => { if (u.timestamp) years.add(new Date(u.timestamp).getFullYear()); });
+                if (p.projectDate) { const d = new Date(p.projectDate); if (!isNaN(d.getTime())) years.add(d.getFullYear()); }
+                (p.updates || []).forEach(u => { if (u && u.timestamp) { const d = new Date(u.timestamp); if (!isNaN(d.getTime())) years.add(d.getFullYear()); } });
             });
             const yearsSorted = Array.from(years).sort((a, b) => b - a).map(String);
             _renderTblDropdownOptions('year', yearsSorted, tableSelectedYears);
