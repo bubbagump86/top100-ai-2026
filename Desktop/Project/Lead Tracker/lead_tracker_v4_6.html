@@ -391,6 +391,24 @@
             button, .btn, .nav-tab { min-height: 44px; }
             input[type="text"], input[type="date"], textarea, select { min-height: 44px; font-size: 16px !important; }
         }
+
+        /* ── Whitespace fix: remove all top spacing below tab bar ── */
+        #tableTab,
+        #kanbanTab {
+          padding-top: 0 !important;
+          margin-top: 0 !important;
+        }
+        #tableTab > *:first-child,
+        #kanbanTab > *:first-child {
+          margin-top: 0 !important;
+          padding-top: 0 !important;
+        }
+        #tableDateFilterBar {
+          margin-top: 0 !important;
+        }
+        .filters-bar {
+          margin-top: 0 !important;
+        }
     </style>
 </head>
 <body>
@@ -735,7 +753,7 @@
                         <button onclick="applyDashboardDateFilter()" class="btn btn-primary" style="font-size: 13px; padding: 8px 16px; white-space: nowrap;">Apply Filter</button>
                     </div>
                     <!-- Dashboard multi-select filters row -->
-                    <div style="width: 100%; display: flex; gap: 10px; align-items: center; flex-wrap: wrap; margin-top: 6px; padding-top: 8px; border-top: 1px solid #eee;">
+                    <div style="width: 100%; display: flex; gap: 10px; align-items: center; flex-wrap: wrap; margin-top: 2px; padding-top: 4px; border-top: 1px solid #eee;">
                         <div class="tbl-multi-wrap">
                             <button class="tbl-multi-btn" id="dashStatusBtn" onclick="toggleTblDropdown('dashStatusDrop',event)">All Statuses</button>
                             <div class="tbl-multi-dropdown" id="dashStatusDrop">
@@ -935,7 +953,7 @@
                         <button onclick="applyHeatmapDateFilter()" class="btn btn-primary" style="font-size: 13px; padding: 7px 15px; white-space: nowrap;">Apply</button>
                     </div>
                     <!-- Heatmap multi-select filters row -->
-                    <div style="width: 100%; display: flex; gap: 10px; align-items: center; flex-wrap: wrap; margin-top: 6px; padding-top: 8px; border-top: 1px solid #eee;">
+                    <div style="width: 100%; display: flex; gap: 10px; align-items: center; flex-wrap: wrap; margin-top: 2px; padding-top: 4px; border-top: 1px solid #eee;">
                         <div class="tbl-multi-wrap">
                             <button class="tbl-multi-btn" id="hmStatusBtn" onclick="toggleTblDropdown('hmStatusDrop',event)">All Statuses</button>
                             <div class="tbl-multi-dropdown" id="hmStatusDrop">
@@ -994,7 +1012,7 @@
         <!-- Kanban Tab -->
         <div id="kanbanTab" class="tab-content">
           <div style="padding: 0 20px 20px 20px;">
-            <h2 style="color: #667eea; margin: 0 0 8px 0; padding-top: 6px;">🗂️ Pipeline Kanban</h2>
+            <h2 style="color: #667eea; margin: 0 0 8px 0;">🗂️ Pipeline Kanban</h2>
 
             <!-- Kanban Filter Bar -->
             <div style="background: white; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); padding: 14px 18px; margin-bottom: 12px; display: flex; gap: 10px; align-items: flex-end; flex-wrap: wrap;">
@@ -1018,7 +1036,7 @@
               </div>
 
               <!-- Multi-select dropdowns row -->
-              <div style="width: 100%; display: flex; gap: 10px; align-items: center; flex-wrap: wrap; margin-top: 6px; padding-top: 8px; border-top: 1px solid #eee;">
+              <div style="width: 100%; display: flex; gap: 10px; align-items: center; flex-wrap: wrap; margin-top: 2px; padding-top: 4px; border-top: 1px solid #eee;">
                 <div class="tbl-multi-wrap">
                   <button class="tbl-multi-btn" id="kbStatusBtn" onclick="toggleTblDropdown('kbStatusDrop',event)">All Statuses</button>
                   <div class="tbl-multi-dropdown" id="kbStatusDrop">
