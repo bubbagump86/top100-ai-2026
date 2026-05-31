@@ -8097,18 +8097,20 @@ updateStats();
             event.preventDefault();
             event.stopPropagation();
             event.dataTransfer.dropEffect = 'move';
-            event.currentTarget.classList.add('drag-over');
+            var col = event.currentTarget.closest ? event.currentTarget.closest('.kanban-col') : event.currentTarget;
+            if (col) col.classList.add('drag-over');
         }
         function kanbanDragLeave(event) {
-            const col = event.currentTarget;
-            if (!col.contains(event.relatedTarget)) {
+            var col = event.currentTarget.closest ? event.currentTarget.closest('.kanban-col') : event.currentTarget;
+            if (col && !col.contains(event.relatedTarget)) {
                 col.classList.remove('drag-over');
             }
         }
         async function kanbanDrop(event, status) {
             event.preventDefault();
             event.stopPropagation();
-            event.currentTarget.classList.remove('drag-over');
+            var col = event.currentTarget.closest ? event.currentTarget.closest('.kanban-col') : event.currentTarget;
+            if (col) col.classList.remove('drag-over');
             const id = window.kbDragId;
             window.kbDragging = false;
             window.kbDragId = null;
