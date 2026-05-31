@@ -8124,7 +8124,6 @@ updateStats();
         }
         async function kanbanDrop(event, status) {
             event.preventDefault();
-            event.stopPropagation();
             var col = event.currentTarget.closest ? event.currentTarget.closest('.kanban-col') : event.currentTarget;
             if (col) col.classList.remove('drag-over');
             const id = window.kbDragId;
