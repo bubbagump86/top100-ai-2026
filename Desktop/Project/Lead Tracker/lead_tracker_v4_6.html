@@ -5165,12 +5165,6 @@ updateStats();
             document.getElementById('totalUpdates').textContent = totalUpdates;
 
             // Pipeline value removed per UX request
-            const pipelineStatuses = ['New Lead', 'Cultivating', 'In Discussion', 'Negotiation', 'On Hold'];
-            const pipelineTotal = projects
-                .filter(p => pipelineStatuses.includes(p.status))
-                .reduce((sum, p) => sum + (parseFloat(p.projectValue) || 0), 0);
-            const pvEl = document.getElementById('pipelineValue');
-            if (pvEl) pvEl.textContent = '$' + pipelineTotal.toLocaleString(undefined, {minimumFractionDigits: 0, maximumFractionDigits: 0});
             if (pvEl) {
                 if (pipelineTotal >= 1000000) {
                     pvEl.textContent = '$' + (pipelineTotal / 1000000).toFixed(1) + 'M';
