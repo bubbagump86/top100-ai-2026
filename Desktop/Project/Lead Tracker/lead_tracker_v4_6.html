@@ -87,7 +87,13 @@
 
         /* ── TABS ── */
         .tab-content { display: none; }
-        .tab-content.active { display: block; padding-top: 0; }
+        .tab-content.active { display: block; padding-top: 0; margin-top: 0; }
+
+        #tableTab > div:first-child,
+        #kanbanTab > div:first-child {
+          margin-top: 0 !important;
+          padding-top: 8px !important;
+        }
 
         /* ── MAIN LAYOUT ── */
         .main-content { display: grid; grid-template-columns: 320px 1fr; gap: 16px; padding: 16px; }
@@ -987,7 +993,7 @@
 
         <!-- Kanban Tab -->
         <div id="kanbanTab" class="tab-content">
-          <div style="padding: 8px 20px 20px 20px;">
+          <div style="padding: 0 20px 20px 20px;">
             <h2 style="color: #667eea; margin-bottom: 16px;">🗂️ Pipeline Kanban</h2>
 
             <!-- Kanban Filter Bar -->
@@ -1098,7 +1104,7 @@
     <div id="tableTab" class="tab-content">
 
         <!-- Table Date Filter Bar -->
-        <div id="tableDateFilterBar" style="background: white; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); padding: 14px 20px; margin: 8px 20px 0 20px; display: flex; gap: 12px; align-items: flex-end; flex-wrap: wrap;">
+        <div id="tableDateFilterBar" style="background: white; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); padding: 14px 20px; margin: 0 20px 0 20px; display: flex; gap: 12px; align-items: flex-end; flex-wrap: wrap;">
             <div style="flex: 1; min-width: 150px;">
                 <label for="tableStartDate" style="display: block; font-weight: 600; color: #333; margin-bottom: 5px; font-size: 13px;">From</label>
                 <input type="date" id="tableStartDate" style="width: 100%; padding: 7px 10px; border: 1px solid #ddd; border-radius: 4px; font-size: 14px;">
@@ -7927,7 +7933,7 @@ updateStats();
                 return `
                     <div class="kanban-col" data-status="${status}"
                         ondragover="kanbanDragOver(event)" ondrop="kanbanDrop(event,'${status}')"
-                        ondragleave="kanbanDragLeave(event)" style="min-height:200px;">
+                        ondragleave="kanbanDragLeave(event)" style="min-height:180px;">
                         <div class="kanban-col-header" style="background:${statusColors[status]}20; color:${statusColors[status]}">
                             <span>${status}</span>
                             <span style="background:${statusColors[status]};color:white;padding:2px 8px;border-radius:10px;font-size:11px">${cards.length}</span>
@@ -8076,34 +8082,32 @@ updateStats();
         function kanbanDragOver(event) {
             event.preventDefault();
             event.stopPropagation();
-            const col = event.currentTarget.closest('.kanban-col') || event.currentTarget;
-            col.classList.add('drag-over');
+            event.dataTransfer.dropEffect = 'move';
+            event.currentTarget.classList.add('drag-over');
         }
         function kanbanDragLeave(event) {
             const col = event.currentTarget;
-            const related = event.relatedTarget;
-            if (!related || !col.contains(related)) {
+            if (!col.contains(event.relatedTarget)) {
                 col.classList.remove('drag-over');
             }
         }
-        async function kanbanDrop(event, newStatus) {
+        async function kanbanDrop(event, status) {
             event.preventDefault();
             event.stopPropagation();
-            const col = event.currentTarget.closest('.kanban-col') || event.currentTarget;
-            col.classList.remove('drag-over');
+            event.currentTarget.classList.remove('drag-over');
             const id = window.kbDragId;
             window.kbDragging = false;
             window.kbDragId = null;
             if (!id) return;
             const project = projects.find(p => p.id === id);
-            if (!project || project.status === newStatus) return;
+            if (!project || project.status === status) return;
             const oldStatus = project.status;
-            project.status = newStatus;
+            project.status = status;
             project.updates = project.updates || [];
             project.updates.unshift({
                 id: generateId(),
                 timestamp: new Date().toISOString(),
-                text: `<em class="status-change-log">Status changed: <strong>${oldStatus}</strong> \u2192 <strong>${newStatus}</strong></em>`,
+                text: `<em class="status-change-log">Status changed: <strong>${oldStatus}</strong> → <strong>${status}</strong></em>`,
                 isSystemEntry: true
             });
             saveData();
@@ -8112,7 +8116,7 @@ updateStats();
             renderKanban();
             renderProjects();
             updateStats();
-            showNotification(`Moved to "${newStatus}"`, 'success');
+            showNotification(`Moved to "${status}"`, 'success');
         }
         // ===== END UPGRADE #6 =====
 
