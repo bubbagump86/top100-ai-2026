@@ -4246,15 +4246,15 @@ updateStats();
                 // Derive status from syncMode + online state
                 if (syncMode === 'onedrive') {
                     if (!isOnline) {
-                        statusText.textContent = '&#128308; Offline — Changes queued';
+                        statusText.textContent = 'Offline — Changes queued';
                         indicator.className = 'sync-indicator warning';
                     } else {
-                        statusText.textContent = '&#9729;️ OneDrive — Synced';
+                        statusText.textContent = 'OneDrive — Synced';
                         indicator.className = 'sync-indicator';
                     }
                 } else {
                     if (!isOnline) {
-                        statusText.textContent = '&#128308; Offline — Browser Only';
+                        statusText.textContent = 'Offline — Browser Only';
                     } else {
                         statusText.textContent = 'Browser Only';
                     }
