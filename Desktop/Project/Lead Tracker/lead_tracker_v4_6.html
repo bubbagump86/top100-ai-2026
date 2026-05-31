@@ -997,7 +997,7 @@
 
         <!-- Kanban Tab -->
         <div id="kanbanTab" class="tab-content" style="padding-top: 0; margin-top: 0;">
-          <div style="max-width:1400px;margin:0 auto;padding:0 20px 20px 20px;">
+          <div style="padding: 0 20px 20px 20px;">
             <h2 style="color: #667eea; margin: 0 0 4px 0;">🗂️ Pipeline Kanban</h2>
 
             <!-- Kanban Filter Bar -->
@@ -1106,7 +1106,6 @@
 
     <!-- Table View Tab -->
     <div id="tableTab" class="tab-content">
-        <div style="max-width:1400px;margin:0 auto;padding-top:0;">
         <!-- Table Date Filter Bar -->
         <div id="tableDateFilterBar" style="background: var(--surface-2); border-radius: 0; padding: 8px 20px; margin: 0; display: flex; gap: 12px; align-items: flex-end; flex-wrap: wrap;">
             <div style="flex: 1; min-width: 150px;">
@@ -7940,7 +7939,7 @@ updateStats();
                 return `
                     <div class="kanban-col" data-status="${status}"
                         ondragover="kanbanDragOver(event)" ondrop="kanbanDrop(event,'${status}')"
-                        ondragleave="kanbanDragLeave(event)" style="min-height:180px;">
+                        ondragleave="kanbanDragLeave(event)" style="min-height:80px;">
                         <div class="kanban-col-header" style="background:${statusColors[status]}20; color:${statusColors[status]}">
                             <span>${status}</span>
                             <span style="background:${statusColors[status]};color:white;padding:2px 8px;border-radius:10px;font-size:11px">${cards.length}</span>
@@ -7958,7 +7957,7 @@ updateStats();
                             <div class="kanban-card" draggable="true" data-id="${p.id}"
                                 ondragstart="kanbanDragStart(event,'${p.id}')"
                                 ondragend="kanbanDragEnd(event)"
-                                onclick="if(!window._kbDragging) openKanbanDetail('${p.id}')"
+                                onclick="if(window._kbDragging) return; event.stopPropagation(); openKanbanDetail('${p.id}')"
                                 ondblclick="event.stopPropagation(); closeKanbanDetail(); window.openEditModal('${p.id}')">
                                 <div class="kanban-card-title" style="display:flex;align-items:center;flex-wrap:wrap;gap:4px;">
                                     <span>${p.projectName}</span>${priorityBadge}
@@ -8077,14 +8076,15 @@ updateStats();
         function kanbanDragStart(event, id) {
             kanbanDragId = id;
             window._kbDragging = true;
+            window.kbDragId = id;
+            event.dataTransfer.effectAllowed = 'move';
             event.target.classList.add('dragging');
             event.dataTransfer.effectAllowed = 'move';
         }
         function kanbanDragEnd(event) {
             event.target.classList.remove('dragging');
             document.querySelectorAll('.kanban-col').forEach(c => c.classList.remove('drag-over'));
-            // Use a short timeout so the click event that fires after dragend is suppressed
-            setTimeout(() => { window._kbDragging = false; }, 100);
+            window._kbDragging = false;
         }
         function kanbanDragOver(event) {
             event.preventDefault();
