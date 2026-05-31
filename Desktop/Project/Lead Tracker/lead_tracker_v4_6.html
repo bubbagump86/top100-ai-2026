@@ -394,7 +394,8 @@
         /* tab-spacing-fix */
         .tab-content.active { overflow: hidden; }
         #tableTab, #kanbanTab { padding: 0 !important; margin: 0 !important; }
-        #tableTab > *, #kanbanTab > * { margin-top: 0 !important; padding-top: 0 !important; }
+        #tableTab > *, #kanbanTab > * { margin-top: 0 !important; }
+        #tableTab #tableTabInner { padding-top: 0 !important; margin-top: 0 !important; }
         #tableDateFilterBar { margin-top: 0 !important; }
         .dashboard-content { padding-top: 0 !important; }
         body.dark-mode [style*="background: white"] {
@@ -1107,6 +1108,7 @@
 
     <!-- Table View Tab -->
     <div id="tableTab" class="tab-content">
+        <div id="tableTabInner" style="max-width:1400px;margin:0 auto;padding:0;">
         <!-- Table Date Filter Bar -->
         <div id="tableDateFilterBar" style="background: var(--surface-2); border-radius: 0; padding: 8px 20px; margin: 0; display: flex; gap: 12px; align-items: flex-end; flex-wrap: wrap;">
             <div style="flex: 1; min-width: 150px;">
