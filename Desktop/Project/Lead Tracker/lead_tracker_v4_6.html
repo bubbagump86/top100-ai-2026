@@ -2331,7 +2331,7 @@ var Vr={},Br={};var Fr=function(){function t(t,e,n){var i=this;this._sleepAfterS
                 return;
             }
 
-            // Table and Kanban tabs also work without special libraries
+            // Table and Kanban — do NOT need libraries, bypass all guards
             if (tabName === 'table' || tabName === 'kanban') {
                 if (typeof switchTab === 'function') {
                     switchTab(tabName);
@@ -2342,25 +2342,16 @@ var Vr={},Br={};var Fr=function(){function t(t,e,n){var i=this;this._sleepAfterS
             // Check if application is ready for other tabs
             if (!window.appInitialized) {
                 console.warn('⏳ Application not fully initialized yet');
-                // Allow proceed with warning, don't block user
             }
 
             // Check library requirements for specific tabs
-            if (tabName === 'dashboard' && !window.libraryReady.chart) {
+            if (tabName === 'dashboard' && (!window.libraryReady || !window.libraryReady.chart)) {
                 alert('Chart.js library is still loading. Please wait a moment...');
                 return;
             }
 
-            if (tabName === 'heatmap' && !window.libraryReady.echarts) {
+            if (tabName === 'heatmap' && (!window.libraryReady || !window.libraryReady.echarts)) {
                 alert('ECharts library is still loading. Please wait a moment...');
-                return;
-            }
-
-            // Table and Kanban tabs also work without special libraries
-            if (tabName === 'table' || tabName === 'kanban') {
-                if (typeof switchTab === 'function') {
-                    switchTab(tabName);
-                }
                 return;
             }
 
@@ -2419,16 +2410,12 @@ var Vr={},Br={};var Fr=function(){function t(t,e,n){var i=this;this._sleepAfterS
                     'table': {
                         tabId: 'tableTab',
                         navIndex: 1,
-                        render: () => {
-                            setTimeout(() => {
-                                try {
-                                    if (typeof renderTable === 'function') renderTable();
-                                    if (typeof setupTableEventDelegation === 'function') setupTableEventDelegation();
-                                    if (typeof updateTableFilterOptions === 'function') updateTableFilterOptions();
-                                } catch (error) {
-                                    console.error('❌ Table tab render error:', error);
-                                }
-                            }, 150);
+                        render: function() {
+                            try {
+                                if (typeof renderTable === 'function') renderTable();
+                                if (typeof setupTableEventDelegation === 'function') setupTableEventDelegation();
+                                if (typeof updateTableFilterOptions === 'function') updateTableFilterOptions();
+                            } catch(error) { console.error('Table tab render error', error); }
                         }
                     },
                     'dashboard': {
@@ -5882,7 +5869,7 @@ updateStats();
                 }
 
                 // Has-updates filter (mutually exclusive; if both checked, ignore both)
-                const hasUpdates = (project.updates || []).length > 0;
+                const hasUpdates = (project.updates?.length ?? 0) > 0;
                 if (hasUpdatesOnly && !noUpdatesOnly && !hasUpdates) return false;
                 if (noUpdatesOnly && !hasUpdatesOnly && hasUpdates) return false;
 
