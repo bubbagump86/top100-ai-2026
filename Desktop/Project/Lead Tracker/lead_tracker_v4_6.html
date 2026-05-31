@@ -87,7 +87,7 @@
 
         /* ── TABS ── */
         .tab-content { display: none; }
-        .tab-content.active { display: block; }
+        .tab-content.active { display: block; overflow: hidden; }
         .main-content { display: grid; grid-template-columns: 320px 1fr; gap: 16px; padding: 16px; }
 
         /* ── SIDEBAR ── */
@@ -391,6 +391,12 @@
         #tableTab > *, #kanbanTab > * { margin-top: 0 !important; padding-top: 0 !important; }
         #tableDateFilterBar { margin-top: 0 !important; }
         .dashboard-content { padding-top: 0 !important; }
+        body.dark-mode [style*="background: white"] {
+            background: var(--surface-2) !important;
+        }
+        body.dark-mode #kanbanTab .kanban-board { background: transparent; }
+        .sync-indicator { background: var(--success); animation: pulse 2s infinite; }
+        body.dark-mode .sync-indicator { background: var(--success); }
     </style>
 </head>
 <body>
@@ -405,7 +411,7 @@
 
     <div class="container">
         <header>
-            <button id="darkModeToggle" class="dark-mode-btn" onclick="toggleDarkMode()" title="Toggle Dark Mode">&#127769;</button>
+            <button id="darkModeToggle" class="dark-mode-btn" onclick="toggleDarkMode()" title="Toggle Dark Mode">&#9680;</button>
             <img src="edb-logo.svg" alt="EDB" width="65" height="30" style="flex-shrink:0;">
             <div class="header-center">
                 <h1>Project Lead Tracker</h1>
@@ -624,14 +630,6 @@
                             <div class="stat-label">Total Updates</div>
                         </div>
                         <div class="stat-card stat-card--accent">
-                            <div class="stat-number stat-number--green" id="pipelineValue">$0</div>
-                            <div class="stat-label">Pipeline Value</div>
-                        </div>
-                        <div class="stat-card stat-card--accent">
-                            <div class="stat-number stat-number--orange" id="winRate">0%</div>
-                            <div class="stat-label">Win Rate</div>
-                        </div>
-                        <div class="stat-card stat-card--accent">
                             <div class="stat-number stat-number--teal" id="avgDaysToClose">—</div>
                             <div class="stat-label">Avg Days to Close</div>
                         </div>
@@ -645,7 +643,7 @@
                             <span>Select All</span>
                         </label>
 
-                        <input type="text" id="searchInput" placeholder="Search name, tags, notes, updates… (press / to focus)" style="flex: 1;" title="Searches across project name, tags, industry, location, notes and update text">
+                        <input type="text" id="searchInput" placeholder="Search name, tags, notes, updates… (press / to focus)" style="flex: 1; background: white;" title="Searches across project name, tags, industry, location, notes and update text">
                         
 
 
@@ -717,7 +715,7 @@
                 <div id="dashboardWidgetControls" class="dashboard-widget-controls"></div>
 
                 <!-- Dashboard Date Filter -->
-                <div id="dashboardDateFilterBar" style="background: white; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); padding: 16px 20px; margin-bottom: 20px; display: flex; gap: 12px; align-items: flex-end; flex-wrap: wrap;">
+                <div id="dashboardDateFilterBar" style="background: white; /* DARK-MODE-OVERRIDE */ border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); padding: 16px 20px; margin-bottom: 20px; display: flex; gap: 12px; align-items: flex-end; flex-wrap: wrap;">
                     <div style="flex: 1; min-width: 160px;">
                         <label for="dashStartDate" style="display: block; font-weight: 600; color: #333; margin-bottom: 6px; font-size: 13px;">From</label>
                         <input type="date" id="dashStartDate" style="width: 100%; padding: 8px 10px; border: 1px solid #ddd; border-radius: 4px; font-size: 14px;">
@@ -917,7 +915,7 @@
                 <p style="color: #666; margin-bottom: 20px; font-size: 14px;">Distribution of companies across provinces in China.</p>
                 
                 <!-- Date Range Filter -->
-                <div style="background: white; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); padding: 16px 20px; margin-bottom: 20px; display: flex; gap: 12px; align-items: flex-end; flex-wrap: wrap;">
+                <div style="background: white; /* DARK-MODE-OVERRIDE */ border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); padding: 16px 20px; margin-bottom: 20px; display: flex; gap: 12px; align-items: flex-end; flex-wrap: wrap;">
                     <div style="flex: 1; min-width: 160px;">
                         <label for="heatmapStartDate" style="display: block; font-weight: 600; color: #333; margin-bottom: 6px; font-size: 13px;">From</label>
                         <input type="date" id="heatmapStartDate" style="width: 100%; padding: 8px 10px; border: 1px solid #ddd; border-radius: 4px; font-size: 14px;">
@@ -998,7 +996,7 @@
             <h2 style="color: #667eea; margin: 0 0 4px 0;">🗂️ Pipeline Kanban</h2>
 
             <!-- Kanban Filter Bar -->
-            <div style="background: white; border-radius: 0 0 8px 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); padding: 8px 18px; margin-bottom: 12px; display: flex; gap: 10px; align-items: flex-end; flex-wrap: wrap;">
+            <div style="background: white; /* DARK-MODE-OVERRIDE */ border-radius: 0 0 8px 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); padding: 8px 18px; margin-bottom: 12px; display: flex; gap: 10px; align-items: flex-end; flex-wrap: wrap;">
               <!-- Date range -->
               <div style="flex: 1; min-width: 140px;">
                 <label style="display: block; font-weight: 600; color: #333; margin-bottom: 5px; font-size: 13px;">From</label>
@@ -1207,7 +1205,7 @@
         </div>
 
         <!-- Date scope toggle — standalone, always visible -->
-        <div style="margin: 8px 20px 0 20px; background: white; border-radius: 8px; box-shadow: 0 1px 3px rgba(0,0,0,0.08); padding: 10px 16px; display: flex; gap: 12px; align-items: center; flex-wrap: wrap;">
+        <div style="margin: 8px 20px 0 20px; background: white; /* DARK-MODE-OVERRIDE */ border-radius: 8px; box-shadow: 0 1px 3px rgba(0,0,0,0.08); padding: 10px 16px; display: flex; gap: 12px; align-items: center; flex-wrap: wrap;">
             <span style="font-weight: 600; color: #555; font-size: 12px; white-space: nowrap;">Date scope:</span>
             <div id="tableYearScopeWrap" class="year-scope-toggle" title="Choose which date to match the Year filter and date range against">
                 <button id="tbl_scope_created" class="active" onclick="setTableYearScope('created')">Created</button>
@@ -1218,14 +1216,14 @@
         </div>
 
         <!-- Industry Group Quick Metrics -->
-        <div id="tableIndustryMetricsPanel" style="margin: 14px 20px 0 20px; background: white; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); padding: 16px 20px;">
+        <div id="tableIndustryMetricsPanel" style="margin: 14px 20px 0 20px; background: white; /* DARK-MODE-OVERRIDE */ border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); padding: 16px 20px;">
             <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px;">
                 <h4 style="color: #667eea; margin: 0; font-size: 14px;">&#128202; Industry Group Distribution <span id="tableIndustryMetricsSubtitle" style="font-weight: normal; color: #888; font-size: 12px;"></span></h4>
             </div>
             <div id="tableIndustryMetrics" style="display: flex; flex-wrap: wrap; gap: 10px;"></div>
         </div>
 
-        <div style="margin: 14px 20px 20px 20px; background: white; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); overflow: hidden;">
+        <div style="margin: 14px 20px 20px 20px; background: white; /* DARK-MODE-OVERRIDE */ border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); overflow: hidden;">
             <div style="overflow-x: auto;">
                 <table id="projectsTable" style="width: 100%; border-collapse: collapse; font-size: 14px;">
                     <thead>
@@ -3188,7 +3186,7 @@ function updateArchetypeFilterDisplay() {
             const isDarkMode = document.body.classList.toggle('dark-mode');
             localStorage.setItem('darkMode', isDarkMode);
             const btn = document.getElementById('darkModeToggle');
-            btn.textContent = isDarkMode ? '&#9728;️' : '&#127769;';
+            btn.textContent = isDarkMode ? '&#9728;' : '&#9680;';
             showNotification('Dark mode ' + (isDarkMode ? 'enabled' : 'disabled'), 'info', 2000);
         }
 
@@ -3197,7 +3195,7 @@ function updateArchetypeFilterDisplay() {
             const isDarkMode = localStorage.getItem('darkMode') !== 'false';
             if (isDarkMode) {
                 document.body.classList.add('dark-mode');
-                document.getElementById('darkModeToggle').textContent = '&#9728;️';
+                document.getElementById('darkModeToggle').textContent = '&#9728;';
             }
         }
 
@@ -5166,12 +5164,13 @@ updateStats();
             const totalUpdates = projects.reduce((sum, p) => sum + p.updates.length, 0);
             document.getElementById('totalUpdates').textContent = totalUpdates;
 
-            // Pipeline value: sum projectValue for all non-Won/Lost leads
+            // Pipeline value removed per UX request
             const pipelineStatuses = ['New Lead', 'Cultivating', 'In Discussion', 'Negotiation', 'On Hold'];
             const pipelineTotal = projects
                 .filter(p => pipelineStatuses.includes(p.status))
                 .reduce((sum, p) => sum + (parseFloat(p.projectValue) || 0), 0);
             const pvEl = document.getElementById('pipelineValue');
+            if (pvEl) pvEl.textContent = '$' + pipelineTotal.toLocaleString(undefined, {minimumFractionDigits: 0, maximumFractionDigits: 0});
             if (pvEl) {
                 if (pipelineTotal >= 1000000) {
                     pvEl.textContent = '$' + (pipelineTotal / 1000000).toFixed(1) + 'M';
