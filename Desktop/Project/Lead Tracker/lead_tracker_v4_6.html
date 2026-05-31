@@ -7935,6 +7935,8 @@ updateStats();
                     const cmp = da < db ? -1 : da > db ? 1 : 0;
                     return kanbanSortDir === 'asc' ? cmp : -cmp;
                 });
+                // Show count in col header and optionally collapse column when empty
+                var emptyCol = cards.length === 0 ? '<div style="color:var(--text-faint);text-align:center;padding:12px;font-size:11px">Drop here</div>' : '';
                 return `
                     <div class="kanban-col" data-status="${status}"
                         ondragover="kanbanDragOver(event)" ondrop="kanbanDrop(event,'${status}')"
@@ -7943,7 +7945,7 @@ updateStats();
                             <span>${status}</span>
                             <span style="background:${statusColors[status]};color:white;padding:2px 8px;border-radius:10px;font-size:11px">${cards.length}</span>
                         </div>
-                        ${cards.length === 0 ? '<div style="color:#aaa;text-align:center;padding:20px;font-size:12px">Drop here</div>' : ''}
+                        ${emptyCol}
                         ${cards.map(p => {
                             const priorityColors = {'High':'#f44336','Medium':'#ff9800','Low':'#4caf50'};
                             const priorityBadge = p.priority ? `<span style="background:${priorityColors[p.priority]||'#999'};color:white;font-size:10px;font-weight:700;padding:1px 7px;border-radius:8px;margin-left:6px;">${p.priority}</span>` : '';
