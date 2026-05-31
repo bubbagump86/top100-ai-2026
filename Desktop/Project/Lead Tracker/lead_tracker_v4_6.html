@@ -7964,7 +7964,7 @@ updateStats();
                             <span style="background:${statusColors[status]};color:white;padding:2px 8px;border-radius:10px;font-size:11px">${cards.length}</span>
                         </div>
                         <div class="kanban-col-body"
-                            ondragover="event.preventDefault();event.stopPropagation();event.dataTransfer.dropEffect='move';event.currentTarget.closest('.kanban-col').classList.add('drag-over');"
+                            ondragover="event.preventDefault();event.dataTransfer.dropEffect='move';event.currentTarget.closest('.kanban-col').classList.add('drag-over');"
                             ondrop="kanbanDrop(event,'${status}')"
                             ondragleave="var c=event.currentTarget.closest('.kanban-col');if(!c.contains(event.relatedTarget))c.classList.remove('drag-over');">
                         ${emptyCol}
@@ -8112,7 +8112,6 @@ updateStats();
         }
         function kanbanDragOver(event) {
             event.preventDefault();
-            event.stopPropagation();
             event.dataTransfer.dropEffect = 'move';
             var col = event.currentTarget.closest ? event.currentTarget.closest('.kanban-col') : event.currentTarget;
             if (col) col.classList.add('drag-over');
