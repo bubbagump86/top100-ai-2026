@@ -5082,8 +5082,8 @@ updateStats();
             const paginatedProjects = filteredProjects.slice(0, projectsCurrentPage * projectsPageSize);
             const hasMore = filteredProjects.length > paginatedProjects.length;
 
-            // Re-bind event delegation before populating DOM
-            if (typeof setupEventDelegation === 'function') setupEventDelegation();
+            // Re-bind event delegation after DOM update
+            if (typeof setupEventDelegation === 'function') setTimeout(function() { setupEventDelegation(); }, 0);
             container.innerHTML = paginatedProjects.map(project => {
                 const viewPreference = project.viewPreference || {};
                 const currentView = viewPreference.updatesView || 'recent';
