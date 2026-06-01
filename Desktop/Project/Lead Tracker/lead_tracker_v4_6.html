@@ -5030,9 +5030,9 @@ updateStats();
                 e.preventDefault();
                 e.stopPropagation();
                 console.log(btn.className, 'clicked:', projectId);
-                if (btn.classList.contains('edit-btn')) openEditModal(projectId);
-                else if (btn.classList.contains('delete-btn')) deleteProject(projectId);
-                else if (btn.classList.contains('history-btn')) showFullHistory(projectId);
+                if (btn.classList.contains('edit-btn')) { openEditModal(projectId); return; }
+                if (btn.classList.contains('delete-btn')) { deleteProject(projectId); return; }
+                if (btn.classList.contains('history-btn')) showFullHistory(projectId);
             }
         }
 
