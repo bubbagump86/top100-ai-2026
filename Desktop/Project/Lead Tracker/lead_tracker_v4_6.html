@@ -4914,35 +4914,30 @@ updateStats();
         }
 
         window.showFullHistory = function(projectId) {
-            const project = projects.find(p => p.id === projectId);
-            if (!project) return;
-
-            const modal = document.getElementById('historyModal');
-            const title = document.getElementById('historyModalTitle');
-            const content = document.getElementById('historyContent');
-
-            title.textContent = `&#128220; Update History: ${project.projectName}`;
-
-            if (project.updates.length === 0) {
-                content.innerHTML = '<div class="history-empty">No updates yet for this project.</div>';
-            } else {
-                const sortedUpdates = [...project.updates].reverse();
-                
-                content.innerHTML = `
-                    <div class="history-timeline">
-                        ${sortedUpdates.map(update => `
-                            <div class="history-item">
-                                <div class="history-date">${formatDate(update.timestamp)}</div>
-                                <div class="history-content">
-                                    <div class="history-text">${update.text}</div>
-                                </div>
-                            </div>
-                        `).join('')}
-                    </div>
-                `;
+            if (!projectId) { showAlert('Project ID missing for history view', 'error'); return; }
+            var project = projects.find(function(p) { return p.id === projectId; });
+            if (!project) { showAlert('Project not found for history view', 'error'); return; }
+            var modal = document.getElementById('historyModal');
+            var title = document.getElementById('historyModalTitle');
+            var content = document.getElementById('historyContent');
+            if (!modal || !title || !content) { console.error('[showFullHistory] Required modal elements not found'); return; }
+            try {
+                title.textContent = 'Update History: ' + project.projectName;
+                var updates = project.updates || [];
+                if (updates.length === 0) {
+                    content.innerHTML = '<div class="history-empty">No updates yet for this project.</div>';
+                } else {
+                    var sortedUpdates = updates.slice().sort(function(a, b) { return (a.timestamp < b.timestamp ? 1 : -1); });
+                    content.innerHTML = '<div class="history-timeline">' +
+                        sortedUpdates.map(function(u) {
+                            return '<div class="history-item"><div class="history-date">' + formatDate(u.timestamp) + '</div><div class="history-content"><div class="history-text">' + u.text + '</div></div></div>';
+                        }).join('') +
+                        '</div>';
+                }
+                modal.classList.add('active');
+            } catch (error) {
+                console.error('[showFullHistory] render error', error);
             }
-
-            modal.classList.add('active');
         }
 
         function closeHistoryModal() {
