@@ -5019,8 +5019,7 @@ updateStats();
             // Walk up to find the button
             var btn = target;
             while (btn && btn !== document) {
-                if (btn.classList && (btn.classList.contains('history-btn') || btn.classList.contains('edit-btn') || btn.classList.contains('delete-btn'))) break;
-                if (btn.getAttribute && btn.getAttribute('data-project-id') && (btn.classList.contains('history-btn') || btn.classList.contains('edit-btn') || btn.classList.contains('delete-btn'))) break;
+                if (btn.nodeType === 1 && btn.classList && (btn.classList.contains('history-btn') || btn.classList.contains('edit-btn') || btn.classList.contains('delete-btn'))) break;
                 btn = btn.parentElement;
             }
             if (!btn || btn === document) return;
