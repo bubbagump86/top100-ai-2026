@@ -4643,15 +4643,8 @@ updateStats();
             var onProjectsTab = activeTab && activeTab.id === 'projectsTab';
             if (!onProjectsTab) safeSwitchTab("projects");
             setTimeout(function() {
-                console.log("Edit button clicked for project:", projectId);
-                console.log("Function called successfully");
-                const project = projects.find(p => p.id === projectId);
-                if (!project) {
-                    console.error("Project not found:", projectId);
-                    showAlert("Project not found!", "error");
-                    return;
-                }
-                console.log("Project found:", project.projectName);
+                var project = projects.find(function(p) { return p.id === projectId; });
+                if (!project) { showAlert("Project not found!", "error"); return; }
                 document.getElementById("editProjectId").value = project.id;
                 document.getElementById("editProjectName").value = project.projectName;
                 document.getElementById("editProjectDate").value = new Date(project.projectDate).toISOString().split("T")[0];
