@@ -6055,8 +6055,8 @@ updateStats();
                         <td style="padding: 12px 8px;">${projectTagsList || '<span style="color: #999;">—</span>'}</td>
                         <td style="padding: 12px 8px; text-align: center;">${project.updates.length}</td>
                         <td style="padding: 12px 8px; text-align: center; white-space: nowrap;">
-                            <button class="btn btn-secondary btn-small edit-btn" data-project-id="${project.id}" style="margin-right: 4px; padding: 4px 8px; font-size: 12px;">Edit</button>
-                            <button class="btn btn-secondary btn-small delete-btn" data-project-id="${project.id}" style="padding: 4px 8px; font-size: 12px;">Delete</button>
+                            <button type="button" class="btn btn-secondary btn-small edit-btn" data-project-id="${project.id}" style="margin-right: 4px; padding: 4px 8px; font-size: 12px;">Edit</button>
+                            <button type="button" class="btn btn-secondary btn-small delete-btn" data-project-id="${project.id}" style="padding: 4px 8px; font-size: 12px;">Delete</button>
                         </td>
                     </tr>
                 `;
@@ -6082,6 +6082,7 @@ updateStats();
                 e.preventDefault();
                 const btn = target.classList.contains('edit-btn') ? target : target.closest('.edit-btn');
                 const projectId = btn.getAttribute('data-project-id');
+                console.log('[Table] Edit clicked for', projectId);
                 if (projectId) {
                     openEditModal(projectId);
                 }
@@ -6092,8 +6093,20 @@ updateStats();
                 e.preventDefault();
                 const btn = target.classList.contains('delete-btn') ? target : target.closest('.delete-btn');
                 const projectId = btn.getAttribute('data-project-id');
+                console.log('[Table] Delete clicked for', projectId);
                 if (projectId) {
                     deleteProject(projectId);
+                }
+                return;
+            }
+
+            if (target.classList.contains('history-btn') || target.closest('.history-btn')) {
+                e.preventDefault();
+                const btn = target.classList.contains('history-btn') ? target : target.closest('.history-btn');
+                const projectId = btn.getAttribute('data-project-id');
+                console.log('[Table] History clicked for', projectId);
+                if (projectId) {
+                    showFullHistory(projectId);
                 }
                 return;
             }
