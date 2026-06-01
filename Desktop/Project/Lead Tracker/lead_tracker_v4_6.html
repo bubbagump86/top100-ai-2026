@@ -6091,23 +6091,23 @@ updateStats();
         
         function handleTableButtonClick(e) {
             const target = e.target;
-            
+
             if (target.classList.contains('edit-btn') || target.closest('.edit-btn')) {
                 e.preventDefault();
                 const btn = target.classList.contains('edit-btn') ? target : target.closest('.edit-btn');
                 const projectId = btn.getAttribute('data-project-id');
-                if (projectId && window.openEditModal) {
-                    window.openEditModal(projectId);
+                if (projectId) {
+                    openEditModal(projectId);
                 }
                 return;
             }
-            
+
             if (target.classList.contains('delete-btn') || target.closest('.delete-btn')) {
                 e.preventDefault();
                 const btn = target.classList.contains('delete-btn') ? target : target.closest('.delete-btn');
                 const projectId = btn.getAttribute('data-project-id');
-                if (projectId && window.deleteProject) {
-                    window.deleteProject(projectId);
+                if (projectId) {
+                    deleteProject(projectId);
                 }
                 return;
             }
