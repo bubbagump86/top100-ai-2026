@@ -5015,33 +5015,31 @@ updateStats();
         }
         
         function handleProjectListClick(e) {
-            const target = e.target;
-            
-            // Edit button clicked
-            if (target.classList.contains('edit-btn')) {
+            var target = e.target;
+            // Walk up to find the button if clicked on a nested element
+            var btn = target.closest('.history-btn, .edit-btn, .delete-btn');
+            if (!btn) return;
+            var projectId = btn.getAttribute('data-project-id');
+
+            if (btn.classList.contains('edit-btn')) {
                 e.preventDefault();
                 e.stopPropagation();
-                const projectId = target.getAttribute('data-project-id');
                 console.log('Edit button clicked via delegation:', projectId);
                 openEditModal(projectId);
                 return;
             }
-            
-            // Delete button clicked
-            if (target.classList.contains('delete-btn')) {
+
+            if (btn.classList.contains('delete-btn')) {
                 e.preventDefault();
                 e.stopPropagation();
-                const projectId = target.getAttribute('data-project-id');
                 console.log('Delete button clicked via delegation:', projectId);
                 deleteProject(projectId);
                 return;
             }
-            
-            // History button clicked
-            if (target.classList.contains('history-btn')) {
+
+            if (btn.classList.contains('history-btn')) {
                 e.preventDefault();
                 e.stopPropagation();
-                const projectId = target.getAttribute('data-project-id');
                 console.log('History button clicked via delegation:', projectId);
                 showFullHistory(projectId);
                 return;
