@@ -4639,39 +4639,39 @@ updateStats();
 
         // Make function globally accessible
         window.openEditModal = function(projectId) {
-            console.log('Edit button clicked for project:', projectId);
-            console.log('Function called successfully');
-            const project = projects.find(p => p.id === projectId);
-            if (!project) {
-                console.error('Project not found:', projectId);
-                showAlert('Project not found!', 'error');
-                return;
-            }
-            console.log('Project found:', project.projectName);
-
-            document.getElementById('editProjectId').value = project.id;
-            document.getElementById('editProjectName').value = project.projectName;
-            document.getElementById('editProjectDate').value = new Date(project.projectDate).toISOString().split('T')[0];
-            document.getElementById('editStatus').value = project.status;
-            document.getElementById('editProductServices').innerHTML = project.productServices || '';
-            document.getElementById('editAdditionalNotes').innerHTML = project.additionalNotes || '';
-            
-            setArchetypes(project.projectArchetype || [], 'edit_arch');
-            editingTags = [...(project.projectTags || [])];
-            editingIndustryGroups = [...(project.industryGroup || [])];
-            editingCompanyLocations = [...(project.companyLocation || [])];
-            renderEditTags();
-            renderEditIndustryGroups();
-            renderEditCompanyLocations();
-            document.getElementById('editIsPriority').checked = project.isPriority || false;
-
-            try {
-                document.getElementById('editModal').classList.add('active');
-                console.log('Edit modal opened successfully');
-            } catch (error) {
-                console.error('Error opening edit modal:', error);
-                showAlert('Error opening edit form: ' + error.message, 'error');
-            }
+            safeSwitchTab("projects");
+            setTimeout(function() {
+                console.log("Edit button clicked for project:", projectId);
+                console.log("Function called successfully");
+                const project = projects.find(p => p.id === projectId);
+                if (!project) {
+                    console.error("Project not found:", projectId);
+                    showAlert("Project not found!", "error");
+                    return;
+                }
+                console.log("Project found:", project.projectName);
+                document.getElementById("editProjectId").value = project.id;
+                document.getElementById("editProjectName").value = project.projectName;
+                document.getElementById("editProjectDate").value = new Date(project.projectDate).toISOString().split("T")[0];
+                document.getElementById("editStatus").value = project.status;
+                document.getElementById("editProductServices").innerHTML = project.productServices || "";
+                document.getElementById("editAdditionalNotes").innerHTML = project.additionalNotes || "";
+                setArchetypes(project.projectArchetype || [], "edit_arch");
+                editingTags = [...(project.projectTags || [])];
+                editingIndustryGroups = [...(project.industryGroup || [])];
+                editingCompanyLocations = [...(project.companyLocation || [])];
+                renderEditTags();
+                renderEditIndustryGroups();
+                renderEditCompanyLocations();
+                document.getElementById("editIsPriority").checked = project.isPriority || false;
+                try {
+                    document.getElementById("editModal").classList.add("active");
+                    console.log("Edit modal opened successfully");
+                } catch (error) {
+                    console.error("Error opening edit modal:", error);
+                    showAlert("Error opening edit form: " + error.message, "error");
+                }
+            }, 200);
         }
 
         function closeEditModal() {
@@ -8005,11 +8005,11 @@ updateStats();
                                 ? `<div class="kanban-card-meta">🔄 Updated: ${formatDate(updateDate)}</div>`
                                 : `<div class="kanban-card-meta">📅 ${formatDate(p.projectDate)}</div>`;
                             return `
-                            <div class="kanban-card" draggable="true" data-id="${p.id}"
+                            <div class="kanban-card" draggable="true" data-id="${p.id}" style="${p.isPriority ? 'background:var(--accent-bg);border-color:var(--accent);' : ''}"
                                 ondragstart="kanbanDragStart(event,'${p.id}')"
                                 ondragend="kanbanDragEnd(event)"
                                 onclick="if(window._kbDragging) return; event.stopPropagation(); openKanbanDetail('${p.id}')"
-                                ondblclick="event.stopPropagation(); closeKanbanDetail(); window.openEditModal('${p.id}')">
+                                ondblclick="event.stopPropagation(); closeKanbanDetail(); openEditModal('${p.id}')">
                                 <div class="kanban-card-title" style="display:flex;align-items:center;flex-wrap:wrap;gap:4px;">
                                     <span>${p.projectName}</span><span class="priority-star ${p.isPriority ? 'active' : ''}" onclick="event.stopPropagation(); togglePriority('${p.id}')" title="Toggle priority">★</span>${priorityBadge}
                                 </div>
@@ -8105,7 +8105,7 @@ updateStats();
                 </div>
 
                 <div class="kdm-actions">
-                    <button class="btn btn-primary" onclick="closeKanbanDetail(); window.openEditModal('${p.id}')">✏️ Edit Lead</button>
+                    <button class="btn btn-primary" onclick="closeKanbanDetail(); openEditModal('${p.id}')">✏️ Edit Lead</button>
                     <button class="btn btn-secondary" onclick="closeKanbanDetail()">Close</button>
                 </div>
             `;
