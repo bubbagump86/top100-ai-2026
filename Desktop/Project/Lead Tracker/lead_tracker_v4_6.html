@@ -5023,7 +5023,7 @@ updateStats();
                 e.stopPropagation();
                 const projectId = target.getAttribute('data-project-id');
                 console.log('Edit button clicked via delegation:', projectId);
-                window.window.openEditModal(projectId);
+                window.openEditModal(projectId);
                 return;
             }
             
@@ -5033,7 +5033,7 @@ updateStats();
                 e.stopPropagation();
                 const projectId = target.getAttribute('data-project-id');
                 console.log('Delete button clicked via delegation:', projectId);
-                window.deleteProject(projectId);
+                deleteProject(projectId);
                 return;
             }
             
@@ -5043,7 +5043,7 @@ updateStats();
                 e.stopPropagation();
                 const projectId = target.getAttribute('data-project-id');
                 console.log('History button clicked via delegation:', projectId);
-                window.showFullHistory(projectId);
+                showFullHistory(projectId);
                 return;
             }
         }
