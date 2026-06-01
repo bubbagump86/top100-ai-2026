@@ -5016,8 +5016,8 @@ updateStats();
         
         function handleProjectListClick(e) {
             var target = e.target;
-            // Walk up to find the button if clicked on a nested element
-            var btn = target.closest('.history-btn, .edit-btn, .delete-btn');
+            var btn = target.closest ? target.closest('.history-btn, .edit-btn, .delete-btn') : null;
+            if (!btn) { btn = target.parentElement; if (btn) btn = btn.closest ? btn.closest('[data-project-id]') : null; }
             if (!btn) return;
             var projectId = btn.getAttribute('data-project-id');
 
