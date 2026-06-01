@@ -5024,24 +5024,14 @@ updateStats();
         
         function handleProjectListClick(e) {
             var target = e.target;
-            // Walk up to find the button with data-project-id attribute
-            var btn = target;
-            while (btn && btn !== document) {
-                if (btn.nodeType === 1 && btn.getAttribute && btn.getAttribute('data-project-id')) break;
-                btn = btn.parentElement;
-            }
-            if (!btn || btn === document) return;
+            var btn = target.closest('.edit-btn') || target.closest('.delete-btn') || target.closest('.history-btn');
+            if (!btn) return;
             var projectId = btn.getAttribute('data-project-id');
-            if (!projectId) return;
-            // Determine action from class
-            if (btn.classList.contains('edit-btn') || btn.classList.contains('delete-btn') || btn.classList.contains('history-btn')) {
-                e.preventDefault();
-                e.stopPropagation();
-                console.log(btn.className, 'clicked:', projectId);
-                if (btn.classList.contains('edit-btn')) { openEditModal(projectId); return; }
-                if (btn.classList.contains('delete-btn')) { deleteProject(projectId); return; }
-                if (btn.classList.contains('history-btn')) showFullHistory(projectId);
-            }
+            if (!projectId) { console.warn('[Projects] Action button missing data-project-id'); return; }
+            console.log('[Projects]', btn.className, 'clicked for', projectId);
+            if (btn.classList.contains('edit-btn')) { openEditModal(projectId); }
+            else if (btn.classList.contains('delete-btn')) { deleteProject(projectId); }
+            else if (btn.classList.contains('history-btn')) { showFullHistory(projectId); }
         }
 
         function loadMoreProjects() {
@@ -5088,9 +5078,9 @@ updateStats();
                         <div class="project-header">
                             <div class="project-title">${sanitizeHTML(project.projectName)} <span class="priority-star ${project.isPriority ? 'active' : ''}" onclick="event.stopPropagation(); togglePriority('${project.id}')" title="Toggle priority">★</span></div>
                             <div class="project-actions">
-                                <button class="btn btn-info btn-small history-btn" data-project-id="${project.id}" onclick="event.stopPropagation(); showFullHistory('${project.id}')">History</button>
-                                <button class="btn btn-secondary btn-small edit-btn" data-project-id="${project.id}" onclick="event.stopPropagation(); openEditModal('${project.id}')">Edit</button>
-                                <button class="btn btn-secondary btn-small delete-btn" data-project-id="${project.id}" onclick="event.stopPropagation(); deleteProject('${project.id}')">Delete</button>
+                                <button class="btn btn-info btn-small history-btn" data-project-id="${project.id}">History</button>
+                                <button class="btn btn-secondary btn-small edit-btn" data-project-id="${project.id}">Edit</button>
+                                <button class="btn btn-secondary btn-small delete-btn" data-project-id="${project.id}">Delete</button>
                             </div>
                         </div>
 
