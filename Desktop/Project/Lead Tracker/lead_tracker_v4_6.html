@@ -4639,47 +4639,49 @@ updateStats();
 
         // Make function globally accessible
         window.openEditModal = function(projectId) {
+            console.log('[openEditModal] called with', projectId);
             var project = projects.find(function(p) { return p.id === projectId; });
-            if (!project) { showAlert("Project not found!", "error"); return; }
-            var activeTab = document.querySelector('.tab-content.active');
-            var onProjectsTab = activeTab && activeTab.id === 'projectsTab';
-            if (onProjectsTab) {
-                populateEditForm(project);
-                document.getElementById("editModal").classList.add("active");
-            } else {
-                safeSwitchTab("projects");
-                setTimeout(function() {
-                    populateEditForm(project);
-                    document.getElementById("editModal").classList.add("active");
-                }, 200);
-            }
+            if (!project) { console.warn('[openEditModal] project not found:', projectId); showAlert("Project not found!", "error"); return; }
+            console.log('[openEditModal] opening edit modal for', projectId);
+            populateEditForm(project);
+            document.getElementById("editModal").classList.add("active");
+            // Switch to Projects tab in background if needed — best-effort, never blocks
+            try {
+                var activeTab = document.querySelector('.tab-content.active');
+                if (!activeTab || activeTab.id !== 'projectsTab') safeSwitchTab("projects");
+            } catch(e) { /* ignore */ }
         }
         function populateEditForm(project) {
             if (!project) return;
-            var idEl = document.getElementById("editProjectId");
-            if (idEl) idEl.value = project.id;
-            var nameEl = document.getElementById("editProjectName");
-            if (nameEl) nameEl.value = project.projectName || "";
-            var dateEl = document.getElementById("editProjectDate");
-            if (dateEl) {
-                try { dateEl.value = new Date(project.projectDate).toISOString().split("T")[0]; }
-                catch(e) { dateEl.value = ""; }
-            }
-            var statusEl = document.getElementById("editStatus");
-            if (statusEl) statusEl.value = project.status || "New Lead";
-            var psEl = document.getElementById("editProductServices");
-            if (psEl) psEl.innerHTML = project.productServices || "";
-            var anEl = document.getElementById("editAdditionalNotes");
-            if (anEl) anEl.innerHTML = project.additionalNotes || "";
-            if (typeof setArchetypes === 'function') setArchetypes(project.projectArchetype || [], "edit_arch");
-            editingTags = [...(project.projectTags || [])];
-            editingIndustryGroups = [...(project.industryGroup || [])];
-            editingCompanyLocations = [...(project.companyLocation || [])];
-            if (typeof renderEditTags === 'function') renderEditTags();
-            if (typeof renderEditIndustryGroups === 'function') renderEditIndustryGroups();
-            if (typeof renderEditCompanyLocations === 'function') renderEditCompanyLocations();
-            var prioEl = document.getElementById("editIsPriority");
-            if (prioEl) prioEl.checked = project.isPriority || false;
+            try {
+                var idEl = document.getElementById("editProjectId");
+                if (idEl) idEl.value = project.id;
+                var nameEl = document.getElementById("editProjectName");
+                if (nameEl) nameEl.value = project.projectName || "";
+                var dateEl = document.getElementById("editProjectDate");
+                if (dateEl) {
+                    try {
+                        dateEl.value = project.projectDate ? new Date(project.projectDate).toISOString().split("T")[0] : "";
+                    } catch(e) { dateEl.value = ""; }
+                }
+            } catch(e) { console.error('[openEditModal] form field error', e); }
+            try {
+                var statusEl = document.getElementById("editStatus");
+                if (statusEl) statusEl.value = project.status || "New Lead";
+                var psEl = document.getElementById("editProductServices");
+                if (psEl) psEl.innerHTML = project.productServices || "";
+                var anEl = document.getElementById("editAdditionalNotes");
+                if (anEl) anEl.innerHTML = project.additionalNotes || "";
+                if (typeof setArchetypes === 'function') setArchetypes(project.projectArchetype || [], "edit_arch");
+                editingTags = (project.projectTags && Array.isArray(project.projectTags)) ? [...project.projectTags] : [];
+                editingIndustryGroups = (project.industryGroup && Array.isArray(project.industryGroup)) ? [...project.industryGroup] : [];
+                editingCompanyLocations = (project.companyLocation && Array.isArray(project.companyLocation)) ? [...project.companyLocation] : [];
+                if (typeof renderEditTags === 'function') renderEditTags();
+                if (typeof renderEditIndustryGroups === 'function') renderEditIndustryGroups();
+                if (typeof renderEditCompanyLocations === 'function') renderEditCompanyLocations();
+                var prioEl = document.getElementById("editIsPriority");
+                if (prioEl) prioEl.checked = project.isPriority || false;
+            } catch(e) { console.error('[openEditModal] rich field error', e); }
         }
 
         function closeEditModal() {
