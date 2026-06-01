@@ -5077,9 +5077,9 @@ updateStats();
                         <div class="project-header">
                             <div class="project-title">${sanitizeHTML(project.projectName)} <span class="priority-star ${project.isPriority ? 'active' : ''}" onclick="event.stopPropagation(); togglePriority('${project.id}')" title="Toggle priority">★</span></div>
                             <div class="project-actions">
-                                <button class="btn btn-info btn-small history-btn" data-project-id="${project.id}">History</button>
-                                <button class="btn btn-secondary btn-small edit-btn" data-project-id="${project.id}">Edit</button>
-                                <button class="btn btn-secondary btn-small delete-btn" data-project-id="${project.id}">Delete</button>
+                                <button type="button" class="btn btn-info btn-small history-btn" data-project-id="${project.id}">History</button>
+                                <button type="button" class="btn btn-secondary btn-small edit-btn" data-project-id="${project.id}">Edit</button>
+                                <button type="button" class="btn btn-secondary btn-small delete-btn" data-project-id="${project.id}">Delete</button>
                             </div>
                         </div>
 
