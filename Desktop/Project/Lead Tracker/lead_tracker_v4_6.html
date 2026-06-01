@@ -4639,8 +4639,9 @@ updateStats();
 
         // Make function globally accessible
         window.openEditModal = function(projectId) {
-            safeSwitchTab("projects");
-            var modal = document.getElementById('editModal');
+            var activeTab = document.querySelector('.tab-content.active');
+            var onProjectsTab = activeTab && activeTab.id === 'projectsTab';
+            if (!onProjectsTab) safeSwitchTab("projects");
             setTimeout(function() {
                 console.log("Edit button clicked for project:", projectId);
                 console.log("Function called successfully");
