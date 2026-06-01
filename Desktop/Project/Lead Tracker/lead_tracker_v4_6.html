@@ -90,7 +90,7 @@
 
         /* ── TABS ── */
         .tab-content { display: none; }
-        .tab-content.active { display: block; overflow: hidden; }
+        .tab-content.active { display: block; }
         .main-content { display: grid; grid-template-columns: 400px 1fr; gap: 16px; padding: 16px; }
         .main-content .btn-primary { width: 100%; }
 
@@ -425,7 +425,7 @@
 
 
         /* tab-spacing-fix */
-        .tab-content.active { overflow: hidden; }
+        #tableTab.active, #kanbanTab.active { overflow: hidden; }
         #tableTab, #kanbanTab { padding: 0 !important; margin: 0 !important; }
         #tableTab > *, #kanbanTab > * { margin-top: 0 !important; }
         #tableTab #tableTabInner { padding-top: 0 !important; margin-top: 0 !important; }
@@ -1294,6 +1294,7 @@
             </div>
         </div>
     </div>
+    </div><!-- /tableTab -->
 
     <!-- Kanban Detail Modal -->
     <div id="kanbanDetailModal">
@@ -4645,11 +4646,6 @@ updateStats();
             console.log('[openEditModal] opening edit modal for', projectId);
             populateEditForm(project);
             document.getElementById("editModal").classList.add("active");
-            // Switch to Projects tab in background if needed — best-effort, never blocks
-            try {
-                var activeTab = document.querySelector('.tab-content.active');
-                if (!activeTab || activeTab.id !== 'projectsTab') safeSwitchTab("projects");
-            } catch(e) { /* ignore */ }
         }
         function openEditFromKanban(projectId) {
             closeKanbanDetail();
