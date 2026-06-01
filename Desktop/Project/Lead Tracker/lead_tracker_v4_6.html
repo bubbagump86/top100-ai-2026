@@ -4639,34 +4639,47 @@ updateStats();
 
         // Make function globally accessible
         window.openEditModal = function(projectId) {
+            var project = projects.find(function(p) { return p.id === projectId; });
+            if (!project) { showAlert("Project not found!", "error"); return; }
             var activeTab = document.querySelector('.tab-content.active');
             var onProjectsTab = activeTab && activeTab.id === 'projectsTab';
-            if (!onProjectsTab) safeSwitchTab("projects");
-            setTimeout(function() {
-                var project = projects.find(function(p) { return p.id === projectId; });
-                if (!project) { showAlert("Project not found!", "error"); return; }
-                document.getElementById("editProjectId").value = project.id;
-                document.getElementById("editProjectName").value = project.projectName;
-                document.getElementById("editProjectDate").value = new Date(project.projectDate).toISOString().split("T")[0];
-                document.getElementById("editStatus").value = project.status;
-                document.getElementById("editProductServices").innerHTML = project.productServices || "";
-                document.getElementById("editAdditionalNotes").innerHTML = project.additionalNotes || "";
-                setArchetypes(project.projectArchetype || [], "edit_arch");
-                editingTags = [...(project.projectTags || [])];
-                editingIndustryGroups = [...(project.industryGroup || [])];
-                editingCompanyLocations = [...(project.companyLocation || [])];
-                renderEditTags();
-                renderEditIndustryGroups();
-                renderEditCompanyLocations();
-                document.getElementById("editIsPriority").checked = project.isPriority || false;
-                try {
+            if (onProjectsTab) {
+                populateEditForm(project);
+                document.getElementById("editModal").classList.add("active");
+            } else {
+                safeSwitchTab("projects");
+                setTimeout(function() {
+                    populateEditForm(project);
                     document.getElementById("editModal").classList.add("active");
-                    console.log("Edit modal opened successfully");
-                } catch (error) {
-                    console.error("Error opening edit modal:", error);
-                    showAlert("Error opening edit form: " + error.message, "error");
-                }
-            }, 200);
+                }, 200);
+            }
+        }
+        function populateEditForm(project) {
+            if (!project) return;
+            var idEl = document.getElementById("editProjectId");
+            if (idEl) idEl.value = project.id;
+            var nameEl = document.getElementById("editProjectName");
+            if (nameEl) nameEl.value = project.projectName || "";
+            var dateEl = document.getElementById("editProjectDate");
+            if (dateEl) {
+                try { dateEl.value = new Date(project.projectDate).toISOString().split("T")[0]; }
+                catch(e) { dateEl.value = ""; }
+            }
+            var statusEl = document.getElementById("editStatus");
+            if (statusEl) statusEl.value = project.status || "New Lead";
+            var psEl = document.getElementById("editProductServices");
+            if (psEl) psEl.innerHTML = project.productServices || "";
+            var anEl = document.getElementById("editAdditionalNotes");
+            if (anEl) anEl.innerHTML = project.additionalNotes || "";
+            if (typeof setArchetypes === 'function') setArchetypes(project.projectArchetype || [], "edit_arch");
+            editingTags = [...(project.projectTags || [])];
+            editingIndustryGroups = [...(project.industryGroup || [])];
+            editingCompanyLocations = [...(project.companyLocation || [])];
+            if (typeof renderEditTags === 'function') renderEditTags();
+            if (typeof renderEditIndustryGroups === 'function') renderEditIndustryGroups();
+            if (typeof renderEditCompanyLocations === 'function') renderEditCompanyLocations();
+            var prioEl = document.getElementById("editIsPriority");
+            if (prioEl) prioEl.checked = project.isPriority || false;
         }
 
         function closeEditModal() {
