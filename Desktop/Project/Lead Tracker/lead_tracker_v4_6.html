@@ -5016,42 +5016,23 @@ updateStats();
         
         function handleProjectListClick(e) {
             var target = e.target;
-            // Walk up to find the button
+            // Walk up to find the button with data-project-id attribute
             var btn = target;
             while (btn && btn !== document) {
-                if (btn.nodeType === 1 && btn.classList && (btn.classList.contains('history-btn') || btn.classList.contains('edit-btn') || btn.classList.contains('delete-btn'))) break;
+                if (btn.nodeType === 1 && btn.getAttribute && btn.getAttribute('data-project-id')) break;
                 btn = btn.parentElement;
             }
             if (!btn || btn === document) return;
             var projectId = btn.getAttribute('data-project-id');
-            if (!projectId && btn.querySelector) {
-                var childBtn = btn.querySelector('[data-project-id]');
-                if (childBtn) { projectId = childBtn.getAttribute('data-project-id'); btn = childBtn; }
-            }
             if (!projectId) return;
-
-            if (btn.classList.contains('edit-btn')) {
+            // Determine action from class
+            if (btn.classList.contains('edit-btn') || btn.classList.contains('delete-btn') || btn.classList.contains('history-btn')) {
                 e.preventDefault();
                 e.stopPropagation();
-                console.log('Edit button clicked via delegation:', projectId);
-                openEditModal(projectId);
-                return;
-            }
-
-            if (btn.classList.contains('delete-btn')) {
-                e.preventDefault();
-                e.stopPropagation();
-                console.log('Delete button clicked via delegation:', projectId);
-                deleteProject(projectId);
-                return;
-            }
-
-            if (btn.classList.contains('history-btn')) {
-                e.preventDefault();
-                e.stopPropagation();
-                console.log('History button clicked via delegation:', projectId);
-                showFullHistory(projectId);
-                return;
+                console.log(btn.className, 'clicked:', projectId);
+                if (btn.classList.contains('edit-btn')) openEditModal(projectId);
+                else if (btn.classList.contains('delete-btn')) deleteProject(projectId);
+                else if (btn.classList.contains('history-btn')) showFullHistory(projectId);
             }
         }
 
