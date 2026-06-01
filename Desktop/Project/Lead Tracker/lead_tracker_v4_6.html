@@ -4651,6 +4651,10 @@ updateStats();
                 if (!activeTab || activeTab.id !== 'projectsTab') safeSwitchTab("projects");
             } catch(e) { /* ignore */ }
         }
+        function openEditFromKanban(projectId) {
+            closeKanbanDetail();
+            openEditModal(projectId);
+        }
         function populateEditForm(project) {
             if (!project) return;
             try {
@@ -4916,6 +4920,7 @@ updateStats();
         }
 
         window.showFullHistory = function(projectId) {
+            console.log('[showFullHistory] for', projectId);
             if (!projectId) { showAlert('Project ID missing for history view', 'error'); return; }
             var project = projects.find(function(p) { return p.id === projectId; });
             if (!project) { showAlert('Project not found for history view', 'error'); return; }
@@ -8008,7 +8013,7 @@ updateStats();
                                 ondragstart="kanbanDragStart(event,'${p.id}')"
                                 ondragend="kanbanDragEnd(event)"
                                 onclick="if(window._kbDragging) return; event.stopPropagation(); openKanbanDetail('${p.id}')"
-                                ondblclick="event.stopPropagation(); closeKanbanDetail(); openEditModal('${p.id}')">
+                                ondblclick="event.stopPropagation(); openEditFromKanban('${p.id}')">
                                 <div class="kanban-card-title" style="display:flex;align-items:center;flex-wrap:wrap;gap:4px;">
                                     <span>${p.projectName}</span><span class="priority-star ${p.isPriority ? 'active' : ''}" onclick="event.stopPropagation(); togglePriority('${p.id}')" title="Toggle priority">★</span>${priorityBadge}
                                 </div>
@@ -8104,7 +8109,7 @@ updateStats();
                 </div>
 
                 <div class="kdm-actions">
-                    <button class="btn btn-primary" onclick="closeKanbanDetail(); openEditModal('${p.id}')">✏️ Edit Lead</button>
+                    <button class="btn btn-primary" onclick="openEditFromKanban('${p.id}')">✏️ Edit Lead</button>
                     <button class="btn btn-secondary" onclick="closeKanbanDetail()">Close</button>
                 </div>
             `;
