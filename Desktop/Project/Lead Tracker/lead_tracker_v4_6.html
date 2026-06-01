@@ -165,7 +165,8 @@
         /* ── TAGS SECTIONS ── */
         .tags-section { margin-top: 8px; }
         .section-label { font-size: 11px; font-weight: 500; color: var(--text-muted); display: block; margin-bottom: 4px; }
-        .project-notes { margin-top: 8px; padding: 8px; background: var(--surface-3); border-radius: var(--radius-sm); font-size: 13px; line-height: 1.4; }
+        .project-notes { margin-top: 8px; padding: 8px; background: var(--surface-3); border-radius: var(--radius-sm); font-size: 13px; line-height: 1.4; word-wrap: break-word; overflow-wrap: break-word; }
+        .project-notes .tags-display .rich-text-display { display: block; width: 100%; box-sizing: border-box; }
         .rich-text-display { max-width: 100%; white-space: pre-wrap; word-wrap: break-word; line-height: 1.6; font-size: 13px; padding-left: 0 !important; }
         .rich-text-display p { margin-bottom: 8px; }
         .rich-text-display p:last-child { margin-bottom: 0; }
@@ -5095,10 +5096,10 @@ updateStats();
                         ` : ''}
 
                         ${project.productServices ? `
-                            <div class="project-products">
+                            <div class="project-notes">
                                 <span class="section-label">Company Description, Products and Services:</span>
                                 <div class="tags-display">
-                                    <div class="rich-text-display" style="padding:8px;background:var(--surface-3);border-radius:var(--radius-sm);font-size:13px;line-height:1.6;max-width:100%;word-wrap:break-word;">${project.productServices}</div>
+                                    <div class="rich-text-display" style="padding:8px;background:var(--surface-3);border-radius:var(--radius-sm);font-size:13px;line-height:1.6;width:100%;word-wrap:break-word;box-sizing:border-box;">${project.productServices}</div>
                                 </div>
                             </div>
                         ` : ''}
