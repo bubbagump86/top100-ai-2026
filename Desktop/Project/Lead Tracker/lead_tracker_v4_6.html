@@ -91,7 +91,9 @@
         /* ── TABS ── */
         .tab-content { display: none; }
         .tab-content.active { display: block; overflow: hidden; }
-        .main-content { display: grid; grid-template-columns: 320px 1fr; gap: 16px; padding: 16px; }
+        .main-content { display: grid; grid-template-columns: 400px 1fr; gap: 16px; padding: 16px; }
+        .main-content .btn-primary { width: 100%; }
+        .mobile-columns-label { display: none; }
 
         /* ── SIDEBAR ── */
         .sidebar { background: var(--surface-2); border: 1px solid var(--border); border-radius: var(--radius-md); padding: 16px; }
@@ -442,7 +444,6 @@
     <div class="container">
         <header>
             <button id="darkModeToggle" class="dark-mode-btn" onclick="toggleDarkMode()" title="Toggle Dark Mode"><svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor"><path d="M21.4 13.7c-.8 1.8-2.6 3-4.6 3-2.8 0-5-2.2-5-5 0-1.8.9-3.4 2.4-4.3.3-.2.5-.5.4-.9s-.4-.6-.8-.7c-.5-.1-1-.2-1.5-.2-4.1 0-7.5 3.4-7.5 7.5s3.4 7.5 7.5 7.5c3.2 0 6-2 7.1-5 .1-.3 0-.6-.3-.8s-.6-.3-.9-.1z"/></svg></button>
-            <img src="edb-logo.svg" alt="EDB" width="65" height="30" style="flex-shrink:0;">
             <div class="header-center">
                 <h1>Project Lead Tracker</h1>
                 <p>Manage your project leads with OneDrive sync across all devices</p>
