@@ -5023,7 +5023,7 @@ updateStats();
                 e.stopPropagation();
                 const projectId = target.getAttribute('data-project-id');
                 console.log('Edit button clicked via delegation:', projectId);
-                window.openEditModal(projectId);
+                openEditModal(projectId);
                 return;
             }
             
