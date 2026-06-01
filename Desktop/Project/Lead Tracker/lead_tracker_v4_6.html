@@ -4760,7 +4760,7 @@ updateStats();
             });
         }
 
-        async function deleteProject(projectId) {
+        window.deleteProject = async function(projectId) {
             if (await confirmModal('Are you sure you want to delete this project?')) {
                 const deletedProject = projects.find(p => p.id === projectId);
                 const deletedIndex = projects.findIndex(p => p.id === projectId);
@@ -4905,7 +4905,7 @@ updateStats();
             renderProjects();
         }
 
-        function showFullHistory(projectId) {
+        window.showFullHistory = function(projectId) {
             const project = projects.find(p => p.id === projectId);
             if (!project) return;
 
