@@ -5024,6 +5024,11 @@ updateStats();
             }
             if (!btn || btn === document) return;
             var projectId = btn.getAttribute('data-project-id');
+            if (!projectId && btn.querySelector) {
+                var childBtn = btn.querySelector('[data-project-id]');
+                if (childBtn) { projectId = childBtn.getAttribute('data-project-id'); btn = childBtn; }
+            }
+            if (!projectId) return;
 
             if (btn.classList.contains('edit-btn')) {
                 e.preventDefault();
