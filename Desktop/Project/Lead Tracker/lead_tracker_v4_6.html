@@ -5016,9 +5016,14 @@ updateStats();
         
         function handleProjectListClick(e) {
             var target = e.target;
-            var btn = target.closest ? target.closest('.history-btn, .edit-btn, .delete-btn') : null;
-            if (!btn) { btn = target.parentElement; if (btn) btn = btn.closest ? btn.closest('[data-project-id]') : null; }
-            if (!btn) return;
+            // Walk up to find the button
+            var btn = target;
+            while (btn && btn !== document) {
+                if (btn.classList && btn.classList.contains('history-btn', 'edit-btn', 'delete-btn')) break;
+                if (btn.getAttribute && btn.getAttribute('data-project-id') && (btn.classList.contains('history-btn') || btn.classList.contains('edit-btn') || btn.classList.contains('delete-btn'))) break;
+                btn = btn.parentElement;
+            }
+            if (!btn || btn === document) return;
             var projectId = btn.getAttribute('data-project-id');
 
             if (btn.classList.contains('edit-btn')) {
@@ -5089,7 +5094,7 @@ updateStats();
                         <div class="project-header">
                             <div class="project-title">${sanitizeHTML(project.projectName)} <span class="priority-star ${project.isPriority ? 'active' : ''}" onclick="event.stopPropagation(); togglePriority('${project.id}')" title="Toggle priority">★</span></div>
                             <div class="project-actions">
-                                <button class="btn btn-info btn-small history-btn" data-project-id="${project.id}">&#128220; History</button>
+                                <button class="btn btn-info btn-small history-btn" data-project-id="${project.id}">History</button>
                                 <button class="btn btn-secondary btn-small edit-btn" data-project-id="${project.id}">Edit</button>
                                 <button class="btn btn-secondary btn-small delete-btn" data-project-id="${project.id}">Delete</button>
                             </div>
